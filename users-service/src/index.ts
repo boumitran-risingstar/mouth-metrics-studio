@@ -72,7 +72,7 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
             data.name = name;
         }
         if (emails !== undefined) {
-            data.emails = emails; // Expecting an array
+            data.emails = emails; // Expecting an array of objects
         }
 
         const userDoc = await userRef.get();
