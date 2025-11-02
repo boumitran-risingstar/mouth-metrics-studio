@@ -19,7 +19,7 @@ type Article = {
     id?: string;
     title: string;
     publication: string;
-    publicationDate: string; // Storing as YYYY-MM-DD string for input
+    publicationDate: string;
     url: string;
 };
 
@@ -28,12 +28,14 @@ export function ArticlesCard() {
     const [articles, setArticles] = useState<Article[]>([]);
     const [originalArticles, setOriginalArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
 
     const fetchArticles = useCallback(async (currentUser: User) => {
         setLoading(true);
+        setError(null);
         try {
             const idToken = await currentUser.getIdToken();
             const response = await fetch('/api/articles', {
@@ -44,10 +46,11 @@ export function ArticlesCard() {
                 setArticles(data);
                 setOriginalArticles(JSON.parse(JSON.stringify(data)));
             } else {
-                console.error("Failed to fetch articles.");
+                throw new Error("Service not available");
             }
         } catch (error) {
             console.error("Failed to fetch articles:", error);
+            setError("Could not load articles and publications.");
         } finally {
             setLoading(false);
         }
@@ -119,8 +122,12 @@ export function ArticlesCard() {
 
     const isValidDate = (dateString: string) => {
         if (!dateString) return false;
-        const date = parseISO(dateString);
-        return date instanceof Date && !isNaN(date.getTime());
+        try {
+            const date = parseISO(dateString);
+            return date instanceof Date && !isNaN(date.getTime());
+        } catch (e) {
+            return false;
+        }
     };
 
     return (
@@ -131,7 +138,7 @@ export function ArticlesCard() {
                         <CardTitle>Articles & Publications</CardTitle>
                         <CardDescription>Your published works and articles.</CardDescription>
                     </div>
-                     {!isEditing && !loading && (
+                     {!isEditing && !loading && !error && (
                         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -152,6 +159,10 @@ export function ArticlesCard() {
                            <Skeleton className="h-4 w-1/2" />
                            <Skeleton className="h-4 w-1/3" />
                         </div>
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>{error}</p>
                     </div>
                 ) : isEditing ? (
                     <div className="space-y-6">

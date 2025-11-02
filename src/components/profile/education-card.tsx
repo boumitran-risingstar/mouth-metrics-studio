@@ -6,7 +6,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, School, Calendar, BookOpen, PlusCircle, Trash2, Loader2, Edit, X } from "lucide-react";
+import { GraduationCap, School, Calendar, BookOpen, PlusCircle, Trash2, Loader2, Edit } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 type EducationData = {
     degree: string;
     institution: string;
-    graduationYear: string; // Use string for input field
+    graduationYear: string;
     fieldOfStudy: string;
 };
 
@@ -25,12 +25,14 @@ export function EducationCard() {
     const [educationHistory, setEducationHistory] = useState<EducationData[]>([]);
     const [originalEducationHistory, setOriginalEducationHistory] = useState<EducationData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
 
     const fetchEducationData = useCallback(async (currentUser: User) => {
         setLoading(true);
+        setError(null);
         try {
             const idToken = await currentUser.getIdToken();
             const response = await fetch('/api/educations', {
@@ -40,12 +42,13 @@ export function EducationCard() {
                 const data = await response.json();
                 const educations = data.map((edu: any) => ({...edu, graduationYear: String(edu.graduationYear)}));
                 setEducationHistory(educations);
-                setOriginalEducationHistory(JSON.parse(JSON.stringify(educations))); // Deep copy
+                setOriginalEducationHistory(JSON.parse(JSON.stringify(educations)));
             } else {
-                console.error("Failed to fetch education data.");
+                throw new Error("Service not available");
             }
         } catch (error) {
             console.error("Failed to fetch education data:", error);
+            setError("Could not load education qualifications.");
         } finally {
             setLoading(false);
         }
@@ -124,7 +127,7 @@ export function EducationCard() {
                         <CardTitle>Educational Qualification</CardTitle>
                         <CardDescription>Your academic background and qualifications.</CardDescription>
                     </div>
-                    {!isEditing && !loading && (
+                    {!isEditing && !loading && !error && (
                         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -145,6 +148,10 @@ export function EducationCard() {
                            <Skeleton className="h-4 w-1/3" />
                            <Skeleton className="h-4 w-1/4" />
                         </div>
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>{error}</p>
                     </div>
                 ) : isEditing ? (
                      <div className="space-y-6">

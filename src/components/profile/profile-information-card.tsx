@@ -7,7 +7,7 @@ import { auth } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Edit, Loader2, PlusCircle, Trash2, User as UserIcon, Phone, Mail, X } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Trash2, User as UserIcon, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,12 +23,14 @@ export function ProfileInformationCard() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
 
     const fetchUserProfile = useCallback(async (currentUser: User) => {
         setLoading(true);
+        setError(null);
         try {
             const idToken = await currentUser.getIdToken();
             const response = await fetch(`/api/profile/${currentUser.uid}`, {
@@ -39,10 +41,11 @@ export function ProfileInformationCard() {
                 setProfile(data);
                 setOriginalProfile(JSON.parse(JSON.stringify(data)));
             } else {
-                console.error("Failed to fetch user profile.");
+                throw new Error("Service not available");
             }
         } catch (error) {
             console.error("Error fetching user profile:", error);
+            setError("Could not load profile information.");
         } finally {
             setLoading(false);
         }
@@ -137,7 +140,7 @@ export function ProfileInformationCard() {
                         <CardTitle>Profile Information</CardTitle>
                         <CardDescription>Manage your personal details.</CardDescription>
                     </div>
-                    {!isEditing && !loading && (
+                    {!isEditing && !loading && !error && (
                         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -150,6 +153,10 @@ export function ProfileInformationCard() {
                         <Skeleton className="h-6 w-3/4" />
                         <Skeleton className="h-5 w-1/2" />
                         <Skeleton className="h-5 w-2/3" />
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>{error}</p>
                     </div>
                 ) : isEditing ? (
                     <div className="space-y-4">

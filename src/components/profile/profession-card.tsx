@@ -32,6 +32,7 @@ export function ProfessionCard() {
     const [professionData, setProfessionData] = useState<ProfessionData>(initialData);
     const [originalData, setOriginalData] = useState<ProfessionData>(initialData);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [newSkill, setNewSkill] = useState("");
@@ -39,6 +40,7 @@ export function ProfessionCard() {
 
     const fetchProfessionData = useCallback(async (currentUser: User) => {
         setLoading(true);
+        setError(null);
         try {
             const idToken = await currentUser.getIdToken();
             const response = await fetch('/api/professions', {
@@ -47,12 +49,13 @@ export function ProfessionCard() {
             if (response.ok) {
                 const data = await response.json();
                 setProfessionData(data);
-                setOriginalData(data); // Store original data for cancellation
+                setOriginalData(data);
             } else {
-                console.error("Failed to fetch profession data.");
+                throw new Error("Service not available");
             }
         } catch (error) {
             console.error("Failed to fetch profession data:", error);
+            setError("Could not load professional information.");
         } finally {
             setLoading(false);
         }
@@ -72,7 +75,7 @@ export function ProfessionCard() {
         return () => unsubscribe();
     }, [fetchProfessionData]);
 
-    const handleFieldChange = (field: keyof ProfessionData, value: string | number) => {
+    const handleFieldChange = (field: keyof ProfessionData, value: string | number | string[]) => {
         setProfessionData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -133,7 +136,7 @@ export function ProfessionCard() {
                         <CardTitle>Professional Information</CardTitle>
                         <CardDescription>Your career details and expertise.</CardDescription>
                     </div>
-                    {!isEditing && !loading && (
+                    {!isEditing && !loading && !error && (
                         <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -156,6 +159,10 @@ export function ProfessionCard() {
                             <Skeleton className="h-6 w-24" />
                             <Skeleton className="h-6 w-16" />
                         </div>
+                    </div>
+                ) : error ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>{error}</p>
                     </div>
                 ) : isEditing ? (
                     <div className="space-y-4">

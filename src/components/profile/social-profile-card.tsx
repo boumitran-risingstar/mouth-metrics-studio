@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { Button } from "@/components/ui/button";
@@ -119,27 +119,37 @@ export function SocialProfileCard() {
     const [user, setUser] = useState<User | null>(null);
     const [socials, setSocials] = useState<SocialPlatform[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isConnecting, setIsConnecting] = useState<string | null>(null);
     const { toast } = useToast();
+
+    const fetchSocialProfiles = useCallback(async (currentUser: User) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const idToken = await currentUser.getIdToken();
+            const response = await fetch('/api/social-profiles', {
+                headers: { Authorization: `Bearer ${idToken}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setSocials(data);
+            } else {
+                throw new Error("Service not available");
+            }
+        } catch (error) {
+            console.error("Failed to fetch social profiles:", error);
+            setError("Could not load social media connections.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 setUser(currentUser);
-                try {
-                    const idToken = await currentUser.getIdToken();
-                    const response = await fetch('/api/social-profiles', {
-                        headers: { Authorization: `Bearer ${idToken}` }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setSocials(data);
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch social profiles:", error);
-                } finally {
-                    setLoading(false);
-                }
+                await fetchSocialProfiles(currentUser);
             } else {
                 setUser(null);
                 setLoading(false);
@@ -147,7 +157,7 @@ export function SocialProfileCard() {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [fetchSocialProfiles]);
 
     const handleConnectClick = async (platformName: string) => {
         if (!user) return;
@@ -203,6 +213,10 @@ export function SocialProfileCard() {
                            <Skeleton className="h-8 w-[100px]" />
                         </div>
                     ))
+                ) : error ? (
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>{error}</p>
+                    </div>
                 ) : (
                     socials.map((platform) => {
                         const platformNameForIcon = platform.name === "X (Twitter)" ? "X" : platform.name;
