@@ -119,6 +119,7 @@ export function SocialProfileCard() {
     const [user, setUser] = useState<User | null>(null);
     const [socials, setSocials] = useState<SocialPlatform[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isConnecting, setIsConnecting] = useState<string | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -148,11 +149,37 @@ export function SocialProfileCard() {
         return () => unsubscribe();
     }, []);
 
-    const handleConnectClick = () => {
-        toast({
-            title: "Coming Soon!",
-            description: "Good things are coming. This feature is under development.",
-        });
+    const handleConnectClick = async (platformName: string) => {
+        if (!user) return;
+        setIsConnecting(platformName);
+        try {
+            const idToken = await user.getIdToken();
+            const response = await fetch('/api/social-profiles/connect', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                },
+                body: JSON.stringify({ platform: platformName })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                toast({
+                    title: data.title,
+                    description: data.message,
+                });
+            } else {
+                throw new Error(data.message || 'An error occurred.');
+            }
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error.message || "Failed to connect.",
+            });
+        } finally {
+            setIsConnecting(null);
+        }
     };
     
 
@@ -180,6 +207,7 @@ export function SocialProfileCard() {
                     socials.map((platform) => {
                         const platformNameForIcon = platform.name === "X (Twitter)" ? "X" : platform.name;
                         const Icon = iconMap[platformNameForIcon];
+                        const isCurrentConnecting = isConnecting === platform.name;
                         return (
                         <div
                             key={platform.name}
@@ -192,9 +220,11 @@ export function SocialProfileCard() {
                             <Button
                             variant={platform.connected ? "secondary" : "default"}
                             size="sm"
-                            onClick={handleConnectClick}
+                            onClick={() => handleConnectClick(platform.name)}
+                            disabled={isConnecting !== null}
                             >
-                            {platform.connected ? "Disconnect" : "Connect"}
+                            {isCurrentConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isCurrentConnecting ? "Connecting..." : (platform.connected ? "Disconnect" : "Connect")}
                             </Button>
                         </div>
                         );

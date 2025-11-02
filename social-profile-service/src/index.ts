@@ -64,6 +64,15 @@ socialRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
     res.json(socialData);
 });
 
+socialRouter.post('/connect', (req: AuthenticatedRequest, res: Response) => {
+    const { platform } = req.body;
+    // This is a placeholder for the actual connection logic (e.g., OAuth flow)
+    res.status(200).json({
+        title: "Coming Soon!",
+        message: `Connecting with ${platform} is under development.`
+    });
+});
+
 app.use('/social-profiles', socialRouter);
 
 app.listen(port, '0.0.0.0', () => {
