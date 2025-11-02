@@ -5,9 +5,12 @@ import cors from 'cors';
 import 'dotenv/config';
 
 // Initialize Firebase Admin SDK
-admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-});
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: process.env.FIREBASE_PROJECT_ID,
+    });
+}
 
 const app = express();
 const port = parseInt(process.env.PORT || '8082', 10);

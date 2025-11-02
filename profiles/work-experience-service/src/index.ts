@@ -4,9 +4,12 @@ import admin from 'firebase-admin';
 import cors from 'cors';
 import 'dotenv/config';
 
-admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-});
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: process.env.FIREBASE_PROJECT_ID,
+    });
+}
 const db = admin.firestore();
 
 const app = express();

@@ -6,9 +6,12 @@ import 'dotenv/config';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
-admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-});
+if (!admin.apps.length) {
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        projectId: process.env.FIREBASE_PROJECT_ID,
+    });
+}
 const db = admin.firestore();
 
 const app = express();
