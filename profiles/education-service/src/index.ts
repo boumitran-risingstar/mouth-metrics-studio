@@ -5,9 +5,7 @@ import cors from 'cors';
 import 'dotenv/config';
 
 if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-    });
+    admin.initializeApp();
 }
 const db = admin.firestore();
 

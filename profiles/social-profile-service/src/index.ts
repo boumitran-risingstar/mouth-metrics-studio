@@ -6,9 +6,7 @@ import 'dotenv/config';
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
-    admin.initializeApp({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-    });
+    admin.initializeApp();
 }
 
 const app = express();
