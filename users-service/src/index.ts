@@ -4,6 +4,7 @@ import admin from 'firebase-admin';
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
 admin.initializeApp();
+const db = admin.firestore();
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -61,10 +62,18 @@ userRouter.use(checkAppCheck);
 userRouter.use(checkAuth);
 
 // Example user route
-userRouter.get('/:id', (req: Request, res: Response) => {
+userRouter.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
-    // In a real application, you would fetch user data from a database
-    res.json({ id, name: `User ${id}`, email: `user${id}@example.com` });
+    try {
+        const userDoc = await db.collection('users').doc(id).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json({ id: userDoc.id, ...userDoc.data() });
+    } catch (error) {
+        console.error(`Error fetching user ${id}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 app.use('/users', userRouter);
