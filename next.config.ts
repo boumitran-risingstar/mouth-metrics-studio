@@ -35,7 +35,8 @@ const nextConfig: NextConfig = {
     bodySizeLimit: '2mb',
   },
   env: {
-    NEXT_PUBLIC_USERS_SERVICE_HOST: process.env.NEXT_PUBLIC_USERS_SERVICE_HOST,
+    NEXT_PUBLIC_USERS_SERVICE_HOST: 'http://localhost:8080',
+    NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY: '6LdoDP8rAAAAANHO6ZG9lL37BeJGMipoj5NWgCCb',
   }
 };
 
