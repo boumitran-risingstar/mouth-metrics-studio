@@ -61,6 +61,10 @@ const nextConfig: NextConfig = {
         source: '/api/articles/:path*',
         destination: 'http://127.0.0.1:8085/articles/:path*',
       },
+      {
+        source: '/api/work-experiences/:path*',
+        destination: 'http://127.0.0.1:8086/work-experiences/:path*',
+      },
     ];
   },
   env: {

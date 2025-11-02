@@ -10,6 +10,7 @@ import { EducationCard } from '@/components/profile/education-card';
 import { ProfessionCard } from '@/components/profile/profession-card';
 import { ArticlesCard } from '@/components/profile/articles-card';
 import { ProfileInformationCard } from '@/components/profile/profile-information-card';
+import { WorkExperienceCard } from '@/components/profile/work-experience-card';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -46,6 +47,7 @@ export default function ProfilePage() {
     <div className="container mx-auto py-10 space-y-8">
       <ProfileInformationCard />
       <ProfessionCard />
+      <WorkExperienceCard />
       <EducationCard />
       <ArticlesCard />
       <SocialProfileCard />
