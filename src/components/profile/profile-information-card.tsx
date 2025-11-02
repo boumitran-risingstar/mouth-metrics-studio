@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
@@ -6,7 +7,7 @@ import { auth } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Edit, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Trash2, User as UserIcon, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -125,6 +126,8 @@ export function ProfileInformationCard() {
             setIsProcessing(false);
         }
     };
+    
+    const hasData = profile && (profile.name || profile.phoneNumber || profile.emails.length > 0);
 
     return (
         <Card className="max-w-2xl mx-auto">
@@ -154,6 +157,10 @@ export function ProfileInformationCard() {
                             <Label htmlFor="name">Full Name</Label>
                             <Input id="name" value={profile?.name || ''} onChange={(e) => handleFieldChange('name', e.target.value)} />
                         </div>
+                         <div className="space-y-2">
+                            <Label>Phone Number</Label>
+                            <Input value={profile?.phoneNumber || ''} disabled />
+                        </div>
                         <div className="space-y-2">
                             <Label>Email Addresses</Label>
                             {profile?.emails.map((email, index) => (
@@ -170,26 +177,42 @@ export function ProfileInformationCard() {
                             </Button>
                         </div>
                     </div>
+                ) : hasData ? (
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <UserIcon className="h-6 w-6 text-muted-foreground" />
+                            <div>
+                                <p className="text-sm text-muted-foreground">Full Name</p>
+                                <p className="font-semibold">{profile?.name || 'Not set'}</p>
+                            </div>
+                        </div>
+                         <div className="flex items-center gap-4">
+                            <Phone className="h-6 w-6 text-muted-foreground" />
+                            <div>
+                                <p className="text-sm text-muted-foreground">Phone Number</p>
+                                <p className="font-semibold">{profile?.phoneNumber}</p>
+                            </div>
+                        </div>
+                        <div>
+                             <div className="flex items-center gap-4 mb-3">
+                                <Mail className="h-6 w-6 text-muted-foreground" />
+                                <p className="font-semibold text-sm text-muted-foreground">Email Addresses</p>
+                            </div>
+                            <div className="pl-10">
+                                {profile?.emails && profile.emails.length > 0 ? (
+                                    profile.emails.map((email, index) => (
+                                        <p key={index} className="font-semibold">{email.address}</p>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">No email addresses added.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 ) : (
-                    <div className="space-y-4 text-sm">
-                        <div>
-                            <p className="font-medium text-muted-foreground">Full Name</p>
-                            <p>{profile?.name || 'Not set'}</p>
-                        </div>
-                         <div>
-                            <p className="font-medium text-muted-foreground">Phone Number</p>
-                            <p>{profile?.phoneNumber}</p>
-                        </div>
-                        <div>
-                            <p className="font-medium text-muted-foreground">Email Addresses</p>
-                            {profile?.emails && profile.emails.length > 0 ? (
-                                profile.emails.map((email, index) => (
-                                    <p key={index}>{email.address}</p>
-                                ))
-                            ) : (
-                                <p>No email addresses added.</p>
-                            )}
-                        </div>
+                    <div className="text-center text-muted-foreground py-8">
+                        <p>No profile information available.</p>
+                        <Button variant="link" onClick={() => setIsEditing(true)}>Add your details</Button>
                     </div>
                 )}
             </CardContent>
