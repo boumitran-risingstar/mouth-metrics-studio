@@ -8,7 +8,7 @@ import cors from 'cors';
 admin.initializeApp();
 
 const app = express();
-const port = parseInt(process.env.PORT || '8080', 10);
+const port = parseInt(process.env.PORT || '8081', 10);
 
 const corsOptions = {
     origin: '*',
