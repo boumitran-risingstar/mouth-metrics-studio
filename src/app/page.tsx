@@ -101,30 +101,48 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         </g>
 
         {/* Bar Chart Elements */}
-        <g opacity="0.8" transform="translate(130, 180) scale(0.6)">
-            <rect x="50" y="250" width="40" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
-                 <animate id="draw1" attributeName="height" from="0" to="70" dur="0.4s" begin="0s;erase4.end" fill="freeze" />
-                 <animate attributeName="y" from="250" to="180" dur="0.4s" begin="0s;erase4.end" fill="freeze" />
-                 <animate id="erase1" attributeName="height" from="70" to="0" dur="0.4s" begin="draw4.end+0.5s" fill="freeze" />
-                 <animate attributeName="y" from="180" to="250" dur="0.4s" begin="draw4.end+0.5s" fill="freeze" />
+        <g opacity="0.8" transform="translate(100, 180) scale(0.6)">
+            <rect x="50" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.5">
+                 <animate id="draw1" attributeName="height" from="0" to="50" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="200" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
+                 <animate id="erase1" attributeName="height" from="50" to="0" dur="0.3s" begin="draw7.end+2s" fill="freeze" />
+                 <animate attributeName="y" from="200" to="250" dur="0.3s" begin="draw7.end+2s" fill="freeze" />
             </rect>
-            <rect x="110" y="250" width="40" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
-                 <animate id="draw2" attributeName="height" from="0" to="100" dur="0.4s" begin="draw1.end" fill="freeze" />
-                 <animate attributeName="y" from="250" to="150" dur="0.4s" begin="draw1.end" fill="freeze" />
-                 <animate id="erase2" attributeName="height" from="100" to="0" dur="0.4s" begin="erase1.end" fill="freeze" />
-                 <animate attributeName="y" from="150" to="250" dur="0.4s" begin="erase1.end" fill="freeze" />
+            <rect x="90" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
+                 <animate id="draw2" attributeName="height" from="0" to="80" dur="0.3s" begin="draw1.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="170" dur="0.3s" begin="draw1.end" fill="freeze" />
+                 <animate id="erase2" attributeName="height" from="80" to="0" dur="0.3s" begin="erase1.end" fill="freeze" />
+                 <animate attributeName="y" from="170" to="250" dur="0.3s" begin="erase1.end" fill="freeze" />
             </rect>
-            <rect x="170" y="250" width="40" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
-                 <animate id="draw3" attributeName="height" from="0" to="130" dur="0.4s" begin="draw2.end" fill="freeze" />
-                 <animate attributeName="y" from="250" to="120" dur="0.4s" begin="draw2.end" fill="freeze" />
-                 <animate id="erase3" attributeName="height" from="130" to="0" dur="0.4s" begin="erase2.end" fill="freeze" />
-                 <animate attributeName="y" from="120" to="250" dur="0.4s" begin="erase2.end" fill="freeze" />
+            <rect x="130" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
+                 <animate id="draw3" attributeName="height" from="0" to="110" dur="0.3s" begin="draw2.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="140" dur="0.3s" begin="draw2.end" fill="freeze" />
+                 <animate id="erase3" attributeName="height" from="110" to="0" dur="0.3s" begin="erase2.end" fill="freeze" />
+                 <animate attributeName="y" from="140" to="250" dur="0.3s" begin="erase2.end" fill="freeze" />
             </rect>
-            <rect x="230" y="250" width="40" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
-                <animate id="draw4" attributeName="height" from="0" to="150" dur="0.4s" begin="draw3.end" fill="freeze" />
-                <animate attributeName="y" from="250" to="100" dur="0.4s" begin="draw3.end" fill="freeze" />
-                <animate id="erase4" attributeName="height" from="150" to="0" dur="0.4s" begin="erase3.end" fill="freeze" />
-                <animate attributeName="y" from="100" to="250" dur="0.4s" begin="erase3.end" fill="freeze" />
+            <rect x="170" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
+                <animate id="draw4" attributeName="height" from="0" to="140" dur="0.3s" begin="draw3.end" fill="freeze" />
+                <animate attributeName="y" from="250" to="110" dur="0.3s" begin="draw3.end" fill="freeze" />
+                <animate id="erase4" attributeName="height" from="140" to="0" dur="0.3s" begin="erase3.end" fill="freeze" />
+                <animate attributeName="y" from="110" to="250" dur="0.3s" begin="erase3.end" fill="freeze" />
+            </rect>
+            <rect x="210" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
+                 <animate id="draw5" attributeName="height" from="0" to="170" dur="0.3s" begin="draw4.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="80" dur="0.3s" begin="draw4.end" fill="freeze" />
+                 <animate id="erase5" attributeName="height" from="170" to="0" dur="0.3s" begin="erase4.end" fill="freeze" />
+                 <animate attributeName="y" from="80" to="250" dur="0.3s" begin="erase4.end" fill="freeze" />
+            </rect>
+            <rect x="250" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.9">
+                 <animate id="draw6" attributeName="height" from="0" to="190" dur="0.3s" begin="draw5.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="60" dur="0.3s" begin="draw5.end" fill="freeze" />
+                 <animate id="erase6" attributeName="height" from="190" to="0" dur="0.3s" begin="erase5.end" fill="freeze" />
+                 <animate attributeName="y" from="60" to="250" dur="0.3s" begin="erase5.end" fill="freeze" />
+            </rect>
+            <rect x="290" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="1.0">
+                 <animate id="draw7" attributeName="height" from="0" to="210" dur="0.3s" begin="draw6.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="40" dur="0.3s" begin="draw6.end" fill="freeze" />
+                 <animate id="erase7" attributeName="height" from="210" to="0" dur="0.3s" begin="erase6.end" fill="freeze" />
+                 <animate attributeName="y" from="40" to="250" dur="0.3s" begin="erase6.end" fill="freeze" />
             </rect>
         </g>
     </svg>
