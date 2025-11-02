@@ -79,6 +79,8 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
 
         if (!userDoc.exists) {
             data.createdAt = admin.firestore.FieldValue.serverTimestamp();
+            if (email === undefined) data.email = null;
+            if (emailVerified === undefined) data.emailVerified = false;
         }
 
         await userRef.set(data, { merge: true });
