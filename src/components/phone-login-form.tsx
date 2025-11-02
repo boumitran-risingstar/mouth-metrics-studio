@@ -20,23 +20,6 @@ declare global {
   }
 }
 
-// Helper to get or create the reCAPTCHA verifier
-const getRecaptchaVerifier = () => {
-    if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response: any) => {
-              // reCAPTCHA solved, allow signInWithPhoneNumber.
-            },
-            'expired-callback': () => {
-              // Response expired. Ask user to solve reCAPTCHA again.
-            }
-        });
-    }
-    return window.recaptchaVerifier;
-}
-
-
 export function PhoneLoginForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
@@ -47,15 +30,22 @@ export function PhoneLoginForm() {
   const { toast } = useToast();
   
   useEffect(() => {
-    // We just need to make sure the container exists.
-    // The verifier will be created lazily on first send.
-    const verifier = getRecaptchaVerifier();
+    // This effect runs once on mount to set up the verifier
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        },
+        'expired-callback': () => {
+          // Response expired. Ask user to solve reCAPTCHA again.
+        }
+    });
 
     return () => {
-        // This is commented out to prevent issues with HMR and re-rendering
-        // if (window.recaptchaVerifier) {
-        //     window.recaptchaVerifier.clear();
-        // }
+        // This cleanup function runs when the component unmounts
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+        }
     }
   }, []);
 
@@ -64,9 +54,10 @@ export function PhoneLoginForm() {
     setLoading(true);
     setError(null);
     try {
-      const verifier = getRecaptchaVerifier();
-      // It's possible the verifier was cleared, so we might need to re-render it.
-      await verifier.render();
+      if (!window.recaptchaVerifier) {
+        throw new Error("reCAPTCHA verifier not initialized.");
+      }
+      const verifier = window.recaptchaVerifier;
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       window.confirmationResult = confirmationResult;
       setStep('otp');
@@ -79,6 +70,7 @@ export function PhoneLoginForm() {
         window.recaptchaVerifier.render().then(widgetId => {
             // @ts-ignore
             if (window.grecaptcha) {
+                // @ts-ignore
                 window.grecaptcha.reset(widgetId);
             }
         });
