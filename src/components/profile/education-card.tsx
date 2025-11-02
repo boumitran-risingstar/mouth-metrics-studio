@@ -42,15 +42,14 @@ export function EducationCard() {
                 setEducationHistory(educations);
                 setOriginalEducationHistory(JSON.parse(JSON.stringify(educations))); // Deep copy
             } else {
-                toast({ variant: "destructive", title: "Error", description: "Failed to fetch education data." });
+                console.error("Failed to fetch education data.");
             }
         } catch (error) {
             console.error("Failed to fetch education data:", error);
-            toast({ variant: "destructive", title: "Error", description: "An error occurred while fetching your education data." });
         } finally {
             setLoading(false);
         }
-    }, [toast]);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {

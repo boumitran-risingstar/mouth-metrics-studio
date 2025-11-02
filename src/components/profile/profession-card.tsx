@@ -49,15 +49,14 @@ export function ProfessionCard() {
                 setProfessionData(data);
                 setOriginalData(data); // Store original data for cancellation
             } else {
-                toast({ variant: "destructive", title: "Error", description: "Failed to fetch profession data." });
+                console.error("Failed to fetch profession data.");
             }
         } catch (error) {
             console.error("Failed to fetch profession data:", error);
-            toast({ variant: "destructive", title: "Error", description: "An error occurred while fetching your profession data." });
         } finally {
             setLoading(false);
         }
-    }, [toast]);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {

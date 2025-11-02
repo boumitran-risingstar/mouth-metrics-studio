@@ -44,15 +44,14 @@ export function ArticlesCard() {
                 setArticles(data);
                 setOriginalArticles(JSON.parse(JSON.stringify(data)));
             } else {
-                toast({ variant: "destructive", title: "Error", description: "Failed to fetch articles." });
+                console.error("Failed to fetch articles.");
             }
         } catch (error) {
             console.error("Failed to fetch articles:", error);
-            toast({ variant: "destructive", title: "Error", description: "An error occurred while fetching your articles." });
         } finally {
             setLoading(false);
         }
-    }, [toast]);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
