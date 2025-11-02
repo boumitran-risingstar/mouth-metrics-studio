@@ -54,7 +54,7 @@ const userRouter = express.Router();
 
 // Create or update user profile
 userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
-    const { phoneNumber } = req.body;
+    const { phoneNumber, email, emailVerified } = req.body;
     const uid = req.user?.uid;
 
     if (!uid) {
@@ -63,13 +63,28 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
 
     try {
         const userRef = db.collection('users').doc(uid);
-        await userRef.set({
+        const data: any = {
             phoneNumber,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        if (email !== undefined) {
+            data.email = email;
+        }
+        if (emailVerified !== undefined) {
+            data.emailVerified = emailVerified;
+        }
 
         const userDoc = await userRef.get();
-        res.status(201).json({ id: userDoc.id, ...userDoc.data() });
+
+        if (!userDoc.exists) {
+            data.createdAt = admin.firestore.FieldValue.serverTimestamp();
+        }
+
+        await userRef.set(data, { merge: true });
+
+        const updatedUserDoc = await userRef.get();
+        res.status(201).json({ id: updatedUserDoc.id, ...updatedUserDoc.data() });
     } catch (error) {
         console.error(`Error creating/updating user profile for ${uid}:`, error);
         res.status(500).send('Internal Server Error');
