@@ -20,6 +20,23 @@ declare global {
   }
 }
 
+// Helper to get or create the reCAPTCHA verifier
+const getRecaptchaVerifier = () => {
+    if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response: any) => {
+              // reCAPTCHA solved, allow signInWithPhoneNumber.
+            },
+            'expired-callback': () => {
+              // Response expired. Ask user to solve reCAPTCHA again.
+            }
+        });
+    }
+    return window.recaptchaVerifier;
+}
+
+
 export function PhoneLoginForm() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
@@ -28,31 +45,17 @@ export function PhoneLoginForm() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
-    if (!recaptchaContainerRef.current) return;
-
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-    }
-    
-    const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        'size': 'invisible',
-        'callback': () => {
-          // reCAPTCHA solved
-        },
-        'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
-          setError("reCAPTCHA expired. Please try again.");
-        }
-    });
-    window.recaptchaVerifier = verifier;
+    // We just need to make sure the container exists.
+    // The verifier will be created lazily on first send.
+    const verifier = getRecaptchaVerifier();
 
     return () => {
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
-        }
+        // This is commented out to prevent issues with HMR and re-rendering
+        // if (window.recaptchaVerifier) {
+        //     window.recaptchaVerifier.clear();
+        // }
     }
   }, []);
 
@@ -61,13 +64,16 @@ export function PhoneLoginForm() {
     setLoading(true);
     setError(null);
     try {
-      const verifier = window.recaptchaVerifier!;
+      const verifier = getRecaptchaVerifier();
+      // It's possible the verifier was cleared, so we might need to re-render it.
+      await verifier.render();
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       window.confirmationResult = confirmationResult;
       setStep('otp');
       toast({ title: 'OTP Sent!', description: 'A verification code has been sent to your phone.' });
     } catch (error: any) {
-      setError(error.message);
+      console.error(error);
+      setError(error.message || "An unexpected error occurred.");
       // Reset reCAPTCHA if something went wrong
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.render().then(widgetId => {
@@ -160,7 +166,7 @@ export function PhoneLoginForm() {
              </CardFooter>
         )}
       </Card>
-      <div ref={recaptchaContainerRef} id="recaptcha-container" className="mt-4"></div>
+      <div id="recaptcha-container" className="mt-4"></div>
     </>
   );
 }
