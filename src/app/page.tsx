@@ -101,12 +101,12 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         </g>
 
         {/* Bar Chart Elements */}
-        <g opacity="0.8" transform="translate(105, 180) scale(0.6)">
+        <g opacity="0.8" transform="translate(85, 180) scale(0.6)">
             <rect x="50" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.5">
-                 <animate id="draw1" attributeName="height" from="0" to="50" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
-                 <animate attributeName="y" from="250" to="200" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
-                 <animate id="erase1" attributeName="height" from="50" to="0" dur="0.3s" begin="draw7.end+2s" fill="freeze" />
-                 <animate attributeName="y" from="200" to="250" dur="0.3s" begin="draw7.end+2s" fill="freeze" />
+                 <animate id="draw1" attributeName="height" from="0" to="50" dur="0.3s" begin="0s;erase8.end" fill="freeze" />
+                 <animate attributeName="y" from="250" to="200" dur="0.3s" begin="0s;erase8.end" fill="freeze" />
+                 <animate id="erase1" attributeName="height" from="50" to="0" dur="0.3s" begin="draw8.end+2s" fill="freeze" />
+                 <animate attributeName="y" from="200" to="250" dur="0.3s" begin="draw8.end+2s" fill="freeze" />
             </rect>
             <rect x="90" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
                  <animate id="draw2" attributeName="height" from="0" to="80" dur="0.3s" begin="draw1.end" fill="freeze" />
@@ -143,6 +143,12 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
                  <animate attributeName="y" from="250" to="40" dur="0.3s" begin="draw6.end" fill="freeze" />
                  <animate id="erase7" attributeName="height" from="210" to="0" dur="0.3s" begin="erase6.end" fill="freeze" />
                  <animate attributeName="y" from="40" to="250" dur="0.3s" begin="erase6.end" fill="freeze" />
+            </rect>
+            <rect x="330" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="1.0">
+                <animate id="draw8" attributeName="height" from="0" to="230" dur="0.3s" begin="draw7.end" fill="freeze" />
+                <animate attributeName="y" from="250" to="20" dur="0.3s" begin="draw7.end" fill="freeze" />
+                <animate id="erase8" attributeName="height" from="230" to="0" dur="0.3s" begin="erase7.end" fill="freeze" />
+                <animate attributeName="y" from="20" to="250" dur="0.3s" begin="erase7.end" fill="freeze" />
             </rect>
         </g>
     </svg>
