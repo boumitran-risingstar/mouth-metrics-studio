@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SocialProfileCard } from '@/components/profile/social-profile-card';
 import { EducationCard } from '@/components/profile/education-card';
 import { ProfessionCard } from '@/components/profile/profession-card';
+import { ArticlesCard } from '@/components/profile/articles-card';
 
 type EmailEntry = {
     address: string;
@@ -247,6 +248,7 @@ export default function ProfilePage() {
 
       <ProfessionCard />
       <EducationCard />
+      <ArticlesCard />
       <SocialProfileCard />
 
     </div>
