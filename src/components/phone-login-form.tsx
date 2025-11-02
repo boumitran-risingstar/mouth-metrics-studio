@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
@@ -28,19 +28,31 @@ export function PhoneLoginForm() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': () => {
-              // reCAPTCHA solved
-            },
-            'expired-callback': () => {
-              // Response expired. Ask user to solve reCAPTCHA again.
-              setError("reCAPTCHA expired. Please try again.");
-            }
-        });
+    if (!recaptchaContainerRef.current) return;
+
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+    }
+    
+    const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        'size': 'invisible',
+        'callback': () => {
+          // reCAPTCHA solved
+        },
+        'expired-callback': () => {
+          // Response expired. Ask user to solve reCAPTCHA again.
+          setError("reCAPTCHA expired. Please try again.");
+        }
+    });
+    window.recaptchaVerifier = verifier;
+
+    return () => {
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+        }
     }
   }, []);
 
@@ -148,7 +160,7 @@ export function PhoneLoginForm() {
              </CardFooter>
         )}
       </Card>
-      <div id="recaptcha-container" className="mt-4"></div>
+      <div ref={recaptchaContainerRef} id="recaptcha-container" className="mt-4"></div>
     </>
   );
 }
