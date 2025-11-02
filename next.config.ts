@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 import 'dotenv/config';
 
@@ -34,8 +35,19 @@ const nextConfig: NextConfig = {
   serverActions: {
     bodySizeLimit: '2mb',
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/users/:path*',
+        destination: 'http://127.0.0.1:8080/users/:path*',
+      },
+      {
+        source: '/api/businesses/:path*',
+        destination: 'http://127.0.0.1:8080/businesses/:path*',
+      },
+    ];
+  },
   env: {
-    NEXT_PUBLIC_USERS_SERVICE_HOST: 'http://127.0.0.1:8080',
     NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY: '6LdoDP8rAAAAANHO6ZG9lL37BeJGMipoj5NWgCCb',
   }
 };

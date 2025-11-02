@@ -1,3 +1,4 @@
+
 {
   "name": "businesses-service",
   "version": "1.0.0",
@@ -9,7 +10,6 @@
     "build": "tsc"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.19.2",
     "firebase-admin": "^12.2.0"
   },

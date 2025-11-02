@@ -1,6 +1,6 @@
+
 import express, { Request, Response, NextFunction } from 'express';
 import admin from 'firebase-admin';
-import cors from 'cors';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
@@ -9,7 +9,6 @@ admin.initializeApp();
 const app = express();
 const port = process.env.PORT || 8080;
 
-app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 
 // Middleware to check authentication
@@ -47,6 +46,6 @@ businessRouter.get('/:id', (req: Request, res: Response) => {
 app.use('/businesses', businessRouter);
 
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Businesses service listening on port ${port}`);
 });

@@ -99,10 +99,8 @@ export function PhoneLoginForm() {
       const user = userCredential.user;
       
       const idToken = await user.getIdToken();
-      
-      const usersServiceHost = process.env.NEXT_PUBLIC_USERS_SERVICE_HOST || 'http://localhost:8080';
 
-      const response = await fetch(`${usersServiceHost}/users`, {
+      const response = await fetch(`/api/users`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
