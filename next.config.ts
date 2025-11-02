@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
         source: '/api/social-profiles/:path*',
         destination: 'http://127.0.0.1:8082/social-profiles/:path*',
       },
+      {
+        source: '/api/professions/:path*',
+        destination: 'http://127.0.0.1:8083/professions/:path*',
+      },
     ];
   },
   env: {

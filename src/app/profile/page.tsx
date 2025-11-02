@@ -13,6 +13,7 @@ import { Loader2, AlertCircle, Pencil, PlusCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SocialProfileCard } from '@/components/profile/social-profile-card';
+import { ProfessionCard } from '@/components/profile/profession-card';
 
 type EmailEntry = {
     address: string;
@@ -243,7 +244,9 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
+      <ProfessionCard />
       <SocialProfileCard />
+
     </div>
   );
 }
