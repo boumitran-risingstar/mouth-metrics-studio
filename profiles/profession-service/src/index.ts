@@ -63,7 +63,7 @@ professionRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
     }
 
     try {
-        const professionRef = db.collection('users').doc(userId).collection('profession').doc('details');
+        const professionRef = db.collection('users').doc(userId).collection('professions').doc('details');
         const doc = await professionRef.get();
 
         if (!doc.exists) {
@@ -98,7 +98,7 @@ professionRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
     }
 
     try {
-        const professionRef = db.collection('users').doc(userId).collection('profession').doc('details');
+        const professionRef = db.collection('users').doc(userId).collection('professions').doc('details');
         
         await professionRef.set({
             ...professionData,
