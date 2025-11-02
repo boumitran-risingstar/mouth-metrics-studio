@@ -121,8 +121,9 @@ export default function ProfilePage() {
     if (newEmail && !emails.some(e => e.address === newEmail)) {
       const updatedEmails = [...emails, { address: newEmail, verified: false }];
       setEmails(updatedEmails);
-      setIsAddingEmail(false);
-      setNewEmail('');
+      // We are not resetting the state here to allow saving it.
+      // setIsAddingEmail(false);
+      // setNewEmail('');
     } else {
         toast({
             variant: "destructive",
@@ -150,7 +151,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 space-y-8">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Profile Information</CardTitle>
