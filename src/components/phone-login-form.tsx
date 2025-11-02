@@ -98,12 +98,15 @@ export function PhoneLoginForm() {
       const userCredential = await window.confirmationResult.confirm(otp);
       const user = userCredential.user;
       
+      const idToken = await user.getIdToken();
+      
       const usersServiceHost = process.env.NEXT_PUBLIC_USERS_SERVICE_HOST || 'http://localhost:8080';
 
       const response = await fetch(`${usersServiceHost}/users`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`,
           },
           body: JSON.stringify({
               phoneNumber: user.phoneNumber,
@@ -111,8 +114,8 @@ export function PhoneLoginForm() {
       });
 
       if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to update user profile');
+          const errorData = await response.text();
+          throw new Error(errorData || 'Failed to update user profile');
       }
 
       toast({ title: 'Success!', description: 'You have been successfully signed in.' });

@@ -41,15 +41,15 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Users service is running!');
 });
 
-// Protect all user routes with the authentication middleware
 const userRouter = express.Router();
 
 // Create or update user profile
-userRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
-    const { phoneNumber, uid } = req.body;
+userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
+    const { phoneNumber } = req.body;
+    const uid = req.user?.uid;
 
     if (!uid) {
-        return res.status(400).json({ error: 'User UID not found in request body.' });
+        return res.status(400).json({ error: 'User UID not found in token.' });
     }
 
     try {
@@ -69,8 +69,14 @@ userRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
 
 
 // Example user route
-userRouter.get('/:id', async (req: Request, res: Response) => {
+userRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
+    const requestingUid = req.user?.uid;
+
+    if (id !== requestingUid) {
+        return res.status(403).json({ error: 'Forbidden: You can only access your own profile.' });
+    }
+
     try {
         const userDoc = await db.collection('users').doc(id).get();
         if (!userDoc.exists) {

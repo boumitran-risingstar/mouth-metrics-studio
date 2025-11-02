@@ -17,9 +17,8 @@ const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
         const idToken = req.headers.authorization.split('Bearer ')[1];
         try {
-            await admin.auth().verifyIdToken(idToken);
-            // You can attach user info to the request object if needed
-            // (req as any).user = decodedToken;
+            const decodedToken = await admin.auth().verifyIdToken(idToken);
+            (req as any).user = decodedToken;
             return next();
         } catch (error) {
             console.error('Error while verifying Firebase ID token:', error);
@@ -36,7 +35,6 @@ app.get('/', (req: Request, res: Response) => {
 
 // Protect all business routes with the authentication middleware
 const businessRouter = express.Router();
-// Apply Auth verification
 businessRouter.use(checkAuth);
 
 // Example business route
