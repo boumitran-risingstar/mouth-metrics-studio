@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
     ];
   },
   env: {
-    NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY: '6LdoDP8rAAAAANHO6ZG9lL37BeJGMipoj5NWgCCb',
+    
   }
 };
 
