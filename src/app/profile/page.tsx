@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, AlertCircle, Pencil, PlusCircle, X } from 'lucide-react';
+import { Loader2, AlertCircle, Pencil, PlusCircle, X, Linkedin, Facebook, Instagram, Twitter, Pinterest, Github, Youtube } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -150,7 +150,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 space-y-8">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Profile Information</CardTitle>
@@ -240,6 +240,65 @@ export default function ProfilePage() {
             </form>
         </CardContent>
       </Card>
+      
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+            <CardTitle>Social Media Connect</CardTitle>
+            <CardDescription>Connect your social media accounts for a richer experience.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Linkedin className="h-6 w-6 text-[#0A66C2]" />
+                    <span className="font-medium">LinkedIn</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Facebook className="h-6 w-6 text-[#1877F2]" />
+                    <span className="font-medium">Facebook</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Instagram className="h-6 w-6 text-pink-500" />
+                    <span className="font-medium">Instagram</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Twitter className="h-6 w-6 text-[#1DA1F2]" />
+                    <span className="font-medium">X (Twitter)</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Pinterest className="h-6 w-6 text-[#E60023]" />
+                    <span className="font-medium">Pinterest</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+             <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Github className="h-6 w-6" />
+                    <span className="font-medium">GitHub</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+             <div className="flex items-center justify-between p-3 border rounded-md">
+                <div className="flex items-center gap-3">
+                    <Youtube className="h-6 w-6 text-[#FF0000]" />
+                    <span className="font-medium">YouTube</span>
+                </div>
+                <Button variant="outline">Connect</Button>
+            </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
+
