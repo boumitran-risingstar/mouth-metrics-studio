@@ -30,20 +30,22 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         {/* Bar Chart Elements */}
         <g opacity="0.8" transform="translate(150, 200) scale(0.4)">
             <rect x="50" y="150" width="40" height="100" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
-                 <animate attributeName="height" from="10" to="100" dur="1s" fill="freeze" />
+                 <animate attributeName="y" from="250" to="150" dur="1s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="100" dur="1s" fill="freeze" />
             </rect>
             <rect x="110" y="100" width="40" height="150" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
-                <animate attributeName="height" from="10" to="150" dur="1s" begin="0.2s" fill="freeze" />
+                <animate attributeName="y" from="250" to="100" dur="1s" begin="0.2s" fill="freeze" />
+                <animate attributeName="height" from="0" to="150" dur="1s" begin="0.2s" fill="freeze" />
             </rect>
             <rect x="170" y="180" width="40" height="70" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
-                 <animate attributeName="height" from="10" to="70" dur="1s" begin="0.4s" fill="freeze" />
+                 <animate attributeName="y" from="250" to="180" dur="1s" begin="0.4s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="70" dur="1s" begin="0.4s" fill="freeze" />
             </rect>
             <rect x="230" y="120" width="40" height="130" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
-                 <animate attributeName="height" from="10" to="130" dur="1s" begin="0.6s" fill="freeze" />
+                 <animate attributeName="y" from="250" to="120" dur="1s" begin="0.6s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="130" dur="1s" begin="0.6s" fill="freeze" />
             </rect>
         </g>
-
-        <path d="M 150 300 Q 250 250, 350 320" stroke="hsl(var(--primary-foreground))" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.5" />
     </svg>
 );
 
