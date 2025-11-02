@@ -27,23 +27,36 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         />
         </g>
         
+        {/* Decorative Shapes */}
+        <g opacity="0.7" transform="translate(130, 180) scale(0.4)">
+            <circle cx="20" cy="80" r="10" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                 <animate attributeName="cy" from="100" to="80" dur="1.5s" fill="freeze" repeatCount="indefinite" direction="alternate" />
+            </circle>
+            <rect x="300" y="20" width="20" height="20" rx="5" fill="hsl(var(--primary-foreground))" opacity="0.7">
+                <animateTransform attributeName="transform" type="rotate" from="0 310 30" to="360 310 30" dur="5s" repeatCount="indefinite" />
+            </rect>
+             <circle cx="320" cy="220" r="8" fill="hsl(var(--primary-foreground))" opacity="0.5">
+                <animate attributeName="cx" from="310" to="330" dur="2s" fill="freeze" repeatCount="indefinite" direction="alternate" />
+            </circle>
+        </g>
+
         {/* Bar Chart Elements */}
         <g opacity="0.8" transform="translate(150, 200) scale(0.4)">
-            <rect x="50" y="150" width="40" height="100" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
-                 <animate attributeName="y" from="250" to="150" dur="1s" fill="freeze" />
-                 <animate attributeName="height" from="0" to="100" dur="1s" fill="freeze" />
+            <rect x="50" y="180" width="40" height="70" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
+                 <animate attributeName="y" from="250" to="180" dur="1s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="70" dur="1s" fill="freeze" />
             </rect>
-            <rect x="110" y="100" width="40" height="150" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
-                <animate attributeName="y" from="250" to="100" dur="1s" begin="0.2s" fill="freeze" />
-                <animate attributeName="height" from="0" to="150" dur="1s" begin="0.2s" fill="freeze" />
+            <rect x="110" y="150" width="40" height="100" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
+                 <animate attributeName="y" from="250" to="150" dur="1s" begin="0.2s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="100" dur="1s" begin="0.2s" fill="freeze" />
             </rect>
-            <rect x="170" y="180" width="40" height="70" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
-                 <animate attributeName="y" from="250" to="180" dur="1s" begin="0.4s" fill="freeze" />
-                 <animate attributeName="height" from="0" to="70" dur="1s" begin="0.4s" fill="freeze" />
+            <rect x="170" y="120" width="40" height="130" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
+                 <animate attributeName="y" from="250" to="120" dur="1s" begin="0.4s" fill="freeze" />
+                 <animate attributeName="height" from="0" to="130" dur="1s" begin="0.4s" fill="freeze" />
             </rect>
-            <rect x="230" y="120" width="40" height="130" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
-                 <animate attributeName="y" from="250" to="120" dur="1s" begin="0.6s" fill="freeze" />
-                 <animate attributeName="height" from="0" to="130" dur="1s" begin="0.6s" fill="freeze" />
+            <rect x="230" y="100" width="40" height="150" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
+                <animate attributeName="y" from="250" to="100" dur="1s" begin="0.6s" fill="freeze" />
+                <animate attributeName="height" from="0" to="150" dur="1s" begin="0.6s" fill="freeze" />
             </rect>
         </g>
     </svg>
