@@ -8,7 +8,6 @@ import 'dotenv/config';
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.applicationDefault(),
         projectId: process.env.FIREBASE_PROJECT_ID,
     });
 }
