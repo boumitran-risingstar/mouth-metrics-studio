@@ -55,14 +55,14 @@ businessRouter.use(checkAuth);
 
 // Get all businesses for the authenticated user
 businessRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
-    const ownerId = req.user?.uid;
-    if (!ownerId) {
+    const userId = req.user?.uid;
+    if (!userId) {
         return res.status(401).json({ error: 'User must be logged in.' });
     }
 
     try {
         const businessesRef = db.collection('businesses');
-        const snapshot = await businessesRef.where('ownerId', '==', ownerId).get();
+        const snapshot = await businessesRef.where('createdBy', '==', userId).get();
         
         if (snapshot.empty) {
             return res.json([]);
@@ -71,7 +71,7 @@ businessRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
         const businessesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         res.json(businessesData);
     } catch (error) {
-        console.error(`Error fetching businesses for user ${ownerId}:`, error);
+        console.error(`Error fetching businesses for user ${userId}:`, error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -79,8 +79,8 @@ businessRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
 
 // Create a new business
 businessRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
-    const ownerId = req.user?.uid;
-    if (!ownerId) {
+    const userId = req.user?.uid;
+    if (!userId) {
         return res.status(401).json({ error: 'User must be logged in to create a business.' });
     }
 
@@ -94,14 +94,14 @@ businessRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
         const newBusiness = {
             name,
             address,
-            ownerId,
+            createdBy: userId,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
         };
         await newBusinessRef.set(newBusiness);
 
         res.status(201).json({ id: newBusinessRef.id, ...newBusiness });
     } catch (error) {
-        console.error(`Error creating business for user ${ownerId}:`, error);
+        console.error(`Error creating business for user ${userId}:`, error);
         res.status(500).send('Internal Server Error');
     }
 });
