@@ -54,7 +54,7 @@ const userRouter = express.Router();
 
 // Create or update user profile
 userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
-    const { phoneNumber, email, emailVerified } = req.body;
+    const { phoneNumber, email, emailVerified, name } = req.body;
     const uid = req.user?.uid;
 
     if (!uid) {
@@ -74,13 +74,17 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
         if (emailVerified !== undefined) {
             data.emailVerified = emailVerified;
         }
+        if (name !== undefined) {
+            data.name = name;
+        }
 
-        const userDoc = await userRef.get();
+        const userDoc = await userDoc.get();
 
         if (!userDoc.exists) {
             data.createdAt = admin.firestore.FieldValue.serverTimestamp();
             if (email === undefined) data.email = null;
             if (emailVerified === undefined) data.emailVerified = false;
+            if (name === undefined) data.name = '';
         }
 
         await userRef.set(data, { merge: true });
