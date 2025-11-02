@@ -56,8 +56,8 @@ socialRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
         { name: "LinkedIn", connected: false },
         { name: "Facebook", connected: false },
         { name: "Instagram", connected: false },
-        { name: "X", connected: false },
-        { name: "Pinterest", connected: true },
+        { name: "X (Twitter)", connected: false },
+        { name: "Pinterest", connected: false },
         { name: "GitHub", connected: false },
         { name: "YouTube", connected: false },
     ];

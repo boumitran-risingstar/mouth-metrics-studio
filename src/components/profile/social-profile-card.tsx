@@ -130,10 +130,7 @@ export function SocialProfileCard() {
                     });
                     if (response.ok) {
                         const data = await response.json();
-                        // Handle "X (Twitter)" from hardcoded vs "X" from service
-                        setSocials(data.map((s: SocialPlatform) => 
-                            s.name === "X" ? { ...s, name: "X (Twitter)" } : s
-                        ));
+                        setSocials(data);
                     }
                 } catch (error) {
                     console.error("Failed to fetch social profiles:", error);
