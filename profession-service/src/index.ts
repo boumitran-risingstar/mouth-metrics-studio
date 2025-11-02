@@ -8,6 +8,7 @@ import 'dotenv/config';
 admin.initializeApp({
     projectId: process.env.FIREBASE_PROJECT_ID,
 });
+const db = admin.firestore();
 
 const app = express();
 const port = parseInt(process.env.PORT || '8083', 10);
@@ -49,16 +50,63 @@ app.get('/', (req: Request, res: Response) => {
 const professionRouter = express.Router();
 professionRouter.use(checkAuth);
 
-professionRouter.get('/', (req: AuthenticatedRequest, res: Response) => {
+professionRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user?.uid;
-    // In a real application, you would fetch this data from Firestore for the given userId
-    const professionData = {
-        title: "Dental Hygienist",
-        industry: "Healthcare",
-        yearsOfExperience: 8,
-        skills: ["Patient Care", "Dental Cleanings", "X-Rays", "Fluoride Treatments", "Oral Hygiene Education"],
-    };
-    res.json(professionData);
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID not found' });
+    }
+
+    try {
+        const professionRef = db.collection('users').doc(userId).collection('profession').doc('details');
+        const doc = await professionRef.get();
+
+        if (!doc.exists) {
+            // Return default/empty state if no data exists
+            const defaultData = {
+                title: "",
+                industry: "",
+                yearsOfExperience: 0,
+                skills: [],
+            };
+            return res.json(defaultData);
+        }
+
+        res.json(doc.data());
+    } catch (error) {
+        console.error(`Error fetching profession for user ${userId}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+professionRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.uid;
+    const professionData = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID not found' });
+    }
+
+    // Basic validation
+    if (!professionData || typeof professionData.title === 'undefined') {
+        return res.status(400).json({ error: 'Invalid profession data provided.' });
+    }
+
+    try {
+        const professionRef = db.collection('users').doc(userId).collection('profession').doc('details');
+        
+        await professionRef.set({
+            ...professionData,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        const updatedDoc = await professionRef.get();
+        res.status(200).json(updatedDoc.data());
+
+    } catch (error) {
+        console.error(`Error saving profession for user ${userId}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 
