@@ -19,27 +19,6 @@ interface AuthenticatedRequest extends Request {
     user?: admin.auth.DecodedIdToken;
 }
 
-// Middleware to check App Check token
-const checkAppCheck = async (req: Request, res: Response, next: NextFunction) => {
-    const appCheckToken = req.header('X-Firebase-AppCheck');
-
-    if (!appCheckToken) {
-        // Allow requests to the root path without App Check for health checks
-        if (req.path === '/') {
-            return next();
-        }
-        return res.status(401).send('Unauthorized: No App Check token.');
-    }
-
-    try {
-        await admin.appCheck().verifyToken(appCheckToken);
-        return next();
-    } catch (err) {
-        console.error('Error verifying App Check token:', err);
-        return res.status(401).send('Unauthorized: Invalid App Check token.');
-    }
-};
-
 // Middleware to check authentication
 const checkAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
@@ -64,17 +43,13 @@ app.get('/', (req: Request, res: Response) => {
 
 // Protect all user routes with the authentication middleware
 const userRouter = express.Router();
-// Apply App Check verification first, then Auth verification
-userRouter.use(checkAppCheck);
-userRouter.use(checkAuth);
 
 // Create or update user profile
 userRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
-    const { phoneNumber } = req.body;
-    const uid = req.user?.uid;
+    const { phoneNumber, uid } = req.body;
 
     if (!uid) {
-        return res.status(400).json({ error: 'User UID not found in token.' });
+        return res.status(400).json({ error: 'User UID not found in request body.' });
     }
 
     try {

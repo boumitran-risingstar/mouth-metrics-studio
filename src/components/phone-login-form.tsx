@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult, getIdToken } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,9 +97,6 @@ export function PhoneLoginForm() {
       }
       const userCredential = await window.confirmationResult.confirm(otp);
       const user = userCredential.user;
-
-      // After successful login, create/update user profile
-      const idToken = await getIdToken(user);
       
       const usersServiceHost = process.env.NEXT_PUBLIC_USERS_SERVICE_HOST || 'http://localhost:8080';
 
@@ -107,7 +104,6 @@ export function PhoneLoginForm() {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
           },
           body: JSON.stringify({
               phoneNumber: user.phoneNumber,
