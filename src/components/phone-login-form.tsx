@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,10 +7,11 @@ import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } fro
 import { auth } from '@/lib/firebase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 declare global {
   interface Window {
@@ -23,6 +25,7 @@ export function PhoneLoginForm() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phoneNumber' | 'otp'>('phoneNumber');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -35,6 +38,7 @@ export function PhoneLoginForm() {
             },
             'expired-callback': () => {
               // Response expired. Ask user to solve reCAPTCHA again.
+              setError("reCAPTCHA expired. Please try again.");
             }
         });
     }
@@ -43,6 +47,7 @@ export function PhoneLoginForm() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       const verifier = window.recaptchaVerifier!;
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, verifier);
@@ -50,12 +55,14 @@ export function PhoneLoginForm() {
       setStep('otp');
       toast({ title: 'OTP Sent!', description: 'A verification code has been sent to your phone.' });
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
+      setError(error.message);
       // Reset reCAPTCHA if something went wrong
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.render().then(widgetId => {
             // @ts-ignore
-            window.grecaptcha.reset(widgetId);
+            if (window.grecaptcha) {
+                window.grecaptcha.reset(widgetId);
+            }
         });
       }
     } finally {
@@ -66,6 +73,7 @@ export function PhoneLoginForm() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       if (!window.confirmationResult) {
         throw new Error("No confirmation result found. Please try sending OTP again.");
@@ -74,7 +82,7 @@ export function PhoneLoginForm() {
       toast({ title: 'Success!', description: 'You have been successfully signed in.' });
       router.push('/dashboard');
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Invalid OTP. Please try again.' });
+      setError(error.message || 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -84,6 +92,13 @@ export function PhoneLoginForm() {
     <>
       <Card className="w-full max-w-sm">
         <CardContent className="pt-6">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
           {step === 'phoneNumber' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div className="space-y-2">
@@ -127,7 +142,7 @@ export function PhoneLoginForm() {
         </CardContent>
         {step === 'otp' && (
              <CardFooter>
-                <Button variant="link" onClick={() => setStep('phoneNumber')} className="w-full text-muted-foreground">
+                <Button variant="link" onClick={() => { setStep('phoneNumber'); setError(null); }} className="w-full text-muted-foreground">
                     Entered the wrong number?
                 </Button>
              </CardFooter>
