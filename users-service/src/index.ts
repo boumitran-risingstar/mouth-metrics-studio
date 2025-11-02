@@ -2,11 +2,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import admin from 'firebase-admin';
 import cors from 'cors';
+import 'dotenv/config';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
 admin.initializeApp({
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    projectId: process.env.FIREBASE_PROJECT_ID,
 });
 const db = admin.firestore();
 
