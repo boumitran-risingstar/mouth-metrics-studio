@@ -1,10 +1,42 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 500 500"
+        {...props}
+    >
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.9" />
+            </linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="15" result="coloredBlur" />
+                <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                </feMerge>
+            </filter>
+        </defs>
+        <g filter="url(#glow)">
+        <path 
+            fill="url(#grad1)"
+            d="M 125,100 C 50,125 50,225 100,275 C 100,350 150,425 250,425 C 350,425 400,350 400,275 C 450,225 450,125 375,100 C 325,50 175,50 125,100 Z"
+        />
+        </g>
+        <circle cx="150" cy="200" r="15" fill="hsl(var(--primary-foreground))" opacity="0.7" />
+        <circle cx="250" cy="150" r="10" fill="hsl(var(--primary-foreground))" opacity="0.8" />
+        <circle cx="350" cy="220" r="20" fill="hsl(var(--primary-foreground))" opacity="0.6" />
+        <path d="M 150 300 Q 250 250, 350 320" stroke="hsl(var(--primary-foreground))" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.75" />
+        <line x1="180" y1="350" x2="240" y2="350" stroke="hsl(var(--primary-foreground))" strokeWidth="8" strokeLinecap="round" opacity="0.5" />
+        <line x1="280" y1="380" x2="320" y2="380" stroke="hsl(var(--primary-foreground))" strokeWidth="8" strokeLinecap="round" opacity="0.6" />
+    </svg>
+);
+
 
 export default function HomePage() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image');
 
   return (
     <div className="flex-1">
@@ -25,17 +57,8 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-        <div className="relative h-80 lg:h-[450px] w-full">
-          {heroImage && (
-             <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="object-cover rounded-xl shadow-2xl"
-              data-ai-hint={heroImage.imageHint}
-              priority
-            />
-          )}
+        <div className="relative h-80 lg:h-[450px] w-full flex items-center justify-center">
+            <HeroSvg className="w-full h-full" />
         </div>
       </section>
     </div>
