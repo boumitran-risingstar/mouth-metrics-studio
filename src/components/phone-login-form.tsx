@@ -53,6 +53,13 @@ export function PhoneLoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!phoneNumber.startsWith('+')) {
+        setError("Invalid phone number format. Please include the country code (e.g., +15555555555).");
+        setLoading(false);
+        return;
+    }
+
     try {
       if (!window.recaptchaVerifier) {
         throw new Error("reCAPTCHA verifier not initialized.");
