@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SocialProfileCard } from '@/components/profile/social-profile-card';
 import { ProfessionCard } from '@/components/profile/profession-card';
+import { EducationCard } from '@/components/profile/education-card';
 
 type EmailEntry = {
     address: string;
@@ -245,6 +246,7 @@ export default function ProfilePage() {
       </Card>
 
       <ProfessionCard />
+      <EducationCard />
       <SocialProfileCard />
 
     </div>

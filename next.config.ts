@@ -53,6 +53,10 @@ const nextConfig: NextConfig = {
         source: '/api/professions/:path*',
         destination: 'http://127.0.0.1:8083/professions/:path*',
       },
+      {
+        source: '/api/educations/:path*',
+        destination: 'http://127.0.0.1:8084/educations/:path*',
+      },
     ];
   },
   env: {
