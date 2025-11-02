@@ -61,11 +61,6 @@ export default function DashboardPage() {
       setBusinesses(data);
     } catch (error) {
       console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not load your businesses.",
-      });
     } finally {
       setLoadingBusinesses(false);
     }
