@@ -54,7 +54,7 @@ const userRouter = express.Router();
 
 // Create or update user profile
 userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
-    const { phoneNumber, email, emailVerified, name } = req.body;
+    const { phoneNumber, name, emails } = req.body;
     const uid = req.user?.uid;
 
     if (!uid) {
@@ -68,23 +68,19 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
-        if (email !== undefined) {
-            data.email = email;
-        }
-        if (emailVerified !== undefined) {
-            data.emailVerified = emailVerified;
-        }
         if (name !== undefined) {
             data.name = name;
+        }
+        if (emails !== undefined) {
+            data.emails = emails; // Expecting an array
         }
 
         const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
             data.createdAt = admin.firestore.FieldValue.serverTimestamp();
-            if (email === undefined) data.email = null;
-            if (emailVerified === undefined) data.emailVerified = false;
             if (name === undefined) data.name = '';
+            if (emails === undefined) data.emails = [];
         }
 
         await userRef.set(data, { merge: true });
@@ -110,7 +106,17 @@ userRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Respons
     try {
         const userDoc = await db.collection('users').doc(id).get();
         if (!userDoc.exists) {
-            return res.status(404).json({ error: 'User not found' });
+            // If user doc doesn't exist, create a shell profile from Auth data
+            const authUser = await admin.auth().getUser(id);
+            const newUser = {
+                phoneNumber: authUser.phoneNumber,
+                name: authUser.displayName || '',
+                emails: authUser.email ? [{ address: authUser.email, verified: authUser.emailVerified }] : [],
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            };
+            await db.collection('users').doc(id).set(newUser);
+            return res.json({ id, ...newUser });
         }
         res.json({ id: userDoc.id, ...userDoc.data() });
     } catch (error) {

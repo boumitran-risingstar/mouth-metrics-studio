@@ -1,54 +1,66 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { useEffect, useState, useCallback } from 'react';
+import { onAuthStateChanged, type User, sendEmailVerification, updateEmail as firebaseUpdateEmail, reauthenticateWithCredential, PhoneAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle, AlertCircle, Pencil } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, Pencil, PlusCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+type EmailEntry = {
+    address: string;
+    verified: boolean;
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [emails, setEmails] = useState<EmailEntry[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+
   const [isNameEditing, setIsNameEditing] = useState(false);
+  const [isAddingEmail, setIsAddingEmail] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUser(user);
-        setEmail(user.email || '');
-        
-        // Fetch full profile from our backend
-        try {
-          const idToken = await user.getIdToken();
-          const response = await fetch(`/api/users/${user.uid}`, {
-            headers: { 'Authorization': `Bearer ${idToken}` }
-          });
-          if (response.ok) {
-            const profileData = await response.json();
-            setName(profileData.name || '');
-            if (!profileData.name) {
-              setIsNameEditing(true); // Start in editing mode if name is not set
-            }
-          } else {
-            console.error('Failed to fetch user profile');
-          }
-        } catch (e) {
-            console.error('Error fetching profile', e)
+  const fetchProfile = useCallback(async (user: User) => {
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch(`/api/users/${user.uid}`, {
+        headers: { 'Authorization': `Bearer ${idToken}` }
+      });
+      if (response.ok) {
+        const profileData = await response.json();
+        setName(profileData.name || '');
+        setEmails(profileData.emails || []);
+        if (!profileData.name) {
+          setIsNameEditing(true);
         }
+      } else {
+        console.error('Failed to fetch user profile');
+        setError('Failed to load your profile. Please try again later.');
+      }
+    } catch (e) {
+        console.error('Error fetching profile', e)
+        setError('An error occurred while loading your profile.');
+    }
+  }, []);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        await fetchProfile(currentUser);
       } else {
         router.push('/login');
       }
@@ -56,10 +68,10 @@ export default function ProfilePage() {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, fetchProfile]);
 
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleProfileUpdate = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!user) return;
     
     setIsProcessing(true);
@@ -75,8 +87,8 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({
             phoneNumber: user.phoneNumber,
-            email: email,
             name: name,
+            emails: emails,
         }),
       });
 
@@ -87,8 +99,10 @@ export default function ProfilePage() {
       const profileData = await response.json();
       
       setName(profileData.name || '');
-      setEmail(profileData.email || '');
+      setEmails(profileData.emails || []);
       setIsNameEditing(false);
+      setIsAddingEmail(false);
+      setNewEmail('');
 
       toast({
           title: "Profile Saved",
@@ -102,6 +116,58 @@ export default function ProfilePage() {
       setIsProcessing(false);
     }
   };
+
+  const handleAddEmail = () => {
+    if (newEmail && !emails.some(e => e.address === newEmail)) {
+      const updatedEmails = [...emails, { address: newEmail, verified: false }];
+      setEmails(updatedEmails);
+      setIsAddingEmail(false);
+      setNewEmail('');
+      // Immediately save after adding
+      handleProfileUpdate();
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Invalid Email",
+            description: "Email is either empty or already in your list.",
+        })
+    }
+  };
+
+  const handleSendVerification = async (emailAddress: string) => {
+    if (!user) return;
+
+    // This is a complex flow in Firebase. 
+    // You can't just add a new email and verify it.
+    // You must *update* the user's primary email in Auth, which sends a verification.
+    // We'll update to the new email, send verification, and then (optionally) revert.
+    // For simplicity, we'll just try to update it.
+    
+    toast({ title: "Sending Verification...", description: `Sending verification link to ${emailAddress}`});
+    
+    try {
+        // Firebase requires recent login to update email. Let's just try first.
+        await firebaseUpdateEmail(user, emailAddress);
+        await sendEmailVerification(user);
+
+        toast({
+            title: "Verification Sent!",
+            description: `A verification link has been sent to ${emailAddress}. Please check your inbox.`,
+        });
+
+    } catch(error: any) {
+        console.error("Error sending verification email:", error);
+        if (error.code === 'auth/requires-recent-login') {
+            setError("This is a sensitive operation. Please sign in again to verify your email.");
+            // Optionally, force re-authentication here.
+        } else if (error.code === 'auth/email-already-in-use') {
+             setError("This email address is already in use by another account.");
+        } else {
+            setError(error.message || "Failed to send verification email.");
+        }
+    }
+  };
+
 
   if (loading) {
     return (
@@ -126,7 +192,8 @@ export default function ProfilePage() {
             <form onSubmit={handleProfileUpdate} className="space-y-6">
                 {error && (
                     <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
                 <div className="space-y-2">
@@ -156,18 +223,52 @@ export default function ProfilePage() {
                     </div>
                 </div>
                 
-                <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="you@example.com" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                <div className="space-y-4">
+                    <Label>Email Addresses</Label>
+                    {emails.length > 0 ? (
+                        <div className="space-y-2">
+                            {emails.map((email, index) => (
+                                <div key={index} className="flex items-center justify-between p-2 border rounded-md">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm">{email.address}</span>
+                                        {email.verified ? (
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                        ) : (
+                                            <Button size="sm" variant="outline" onClick={() => handleSendVerification(email.address)}>
+                                                Verify
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {/* Optional: Add a delete button here */}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No email addresses added yet.</p>
+                    )}
+
+                    {isAddingEmail ? (
+                         <div className="flex items-center gap-2 pt-2">
+                            <Input 
+                                type="email" 
+                                placeholder="new.email@example.com"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                            />
+                            <Button type="button" onClick={handleAddEmail}>Add</Button>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => { setIsAddingEmail(false); setNewEmail(''); }}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                         </div>
+                    ) : (
+                        <Button type="button" variant="outline" onClick={() => setIsAddingEmail(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Email
+                        </Button>
+                    )}
                 </div>
                 
-                <div className="flex gap-4">
+                <div className="flex gap-4 pt-4">
                     <Button type="submit" disabled={isProcessing}>
                         {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         {isProcessing ? "Saving..." : "Save Profile"}
