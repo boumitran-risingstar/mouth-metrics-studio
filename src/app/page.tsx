@@ -23,53 +23,60 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         <g filter="url(#glow)">
         <path 
             fill="url(#grad1)"
-            d="M 125,100 C 50,125 50,225 100,275 C 100,350 150,425 250,425 C 350,425 400,350 400,275 C 450,225 450,125 375,100 C 325,50 175,50 125,100 Z"
+            d="M 125,100 C 50,125 50,220 100,275 C 100,350 150,425 250,425 C 350,425 400,350 400,275 C 450,220 450,125 375,100 C 325,50 175,50 125,100 Z"
         />
         </g>
         
         {/* Decorative Shapes */}
-        <g opacity="0.7" transform="translate(130, 180) scale(0.4)">
-             {/* Existing shapes */}
-            <circle cx="20" cy="80" r="10" fill="hsl(var(--primary-foreground))" opacity="0.6">
-                 <animate attributeName="cy" from="100" to="80" dur="1.5s" repeatCount="indefinite" direction="alternate" />
+        <g opacity="0.7">
+             <circle cx="90" cy="150" r="10" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                 <animate attributeName="cy" from="170" to="150" dur="1.5s" repeatCount="indefinite" direction="alternate" />
             </circle>
-            <rect x="300" y="20" width="20" height="20" rx="5" fill="hsl(var(--primary-foreground))" opacity="0.7">
-                <animateTransform attributeName="transform" type="rotate" from="0 310 30" to="360 310 30" dur="5s" repeatCount="indefinite" />
+            <rect x="400" y="200" width="20" height="20" rx="5" fill="hsl(var(--primary-foreground))" opacity="0.7">
+                <animateTransform attributeName="transform" type="rotate" from="0 410 210" to="360 410 210" dur="5s" repeatCount="indefinite" />
             </rect>
-             <circle cx="320" cy="220" r="8" fill="hsl(var(--primary-foreground))" opacity="0.5">
-                <animate attributeName="cx" from="310" to="330" dur="2s" repeatCount="indefinite" direction="alternate" />
+             <circle cx="380" cy="350" r="8" fill="hsl(var(--primary-foreground))" opacity="0.5">
+                <animate attributeName="cx" from="370" to="390" dur="2s" repeatCount="indefinite" direction="alternate" />
             </circle>
-            <circle cx="80" cy="280" r="12" fill="hsl(var(--primary-foreground))" opacity="0.4">
+            <circle cx="120" cy="380" r="12" fill="hsl(var(--primary-foreground))" opacity="0.4">
                 <animate attributeName="r" from="10" to="14" dur="3s" repeatCount="indefinite" direction="alternate" />
             </circle>
-            <rect x="250" y="280" width="15" height="15" rx="4" fill="hsl(var(--primary-foreground))" opacity="0.6">
-                <animateTransform attributeName="transform" type="rotate" from="0 257.5 287.5" to="360 257.5 287.5" dur="6s" repeatCount="indefinite" />
+            <rect x="350" y="380" width="15" height="15" rx="4" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                <animateTransform attributeName="transform" type="rotate" from="0 357.5 387.5" to="360 357.5 387.5" dur="6s" repeatCount="indefinite" />
             </rect>
 
-            {/* New Shapes */}
-            <circle cx="50" cy="20" r="5" fill="hsl(var(--primary-foreground))" opacity="0.8">
-                 <animate attributeName="cy" from="20" to="30" dur="2.5s" repeatCount="indefinite" direction="alternate" />
+            <circle cx="100" cy="80" r="5" fill="hsl(var(--primary-foreground))" opacity="0.8">
+                 <animate attributeName="cy" from="80" to="90" dur="2.5s" repeatCount="indefinite" direction="alternate" />
             </circle>
-             <circle cx="380" cy="150" r="7" fill="hsl(var(--primary-foreground))" opacity="0.7">
+             <circle cx="430" cy="280" r="7" fill="hsl(var(--primary-foreground))" opacity="0.7">
                 <animate attributeName="r" from="5" to="9" dur="2.2s" repeatCount="indefinite" direction="alternate" />
             </circle>
-            <rect x="10" y="150" width="10" height="10" rx="3" fill="hsl(var(--primary-foreground))" opacity="0.5">
-                <animateTransform attributeName="transform" type="rotate" from="0 15 155" to="360 15 155" dur="7s" repeatCount="indefinite" />
+            <rect x="70" y="280" width="10" height="10" rx="3" fill="hsl(var(--primary-foreground))" opacity="0.5">
+                <animateTransform attributeName="transform" type="rotate" from="0 75 285" to="360 75 285" dur="7s" repeatCount="indefinite" />
             </rect>
-            <circle cx="150" cy="30" r="6" fill="hsl(var(--primary-foreground))" opacity="0.9">
-                 <animate attributeName="cx" from="140" to="160" dur="2.8s" repeatCount="indefinite" direction="alternate" />
+            <circle cx="250" cy="80" r="6" fill="hsl(var(--primary-foreground))" opacity="0.9">
+                 <animate attributeName="cx" from="240" to="260" dur="2.8s" repeatCount="indefinite" direction="alternate" />
             </circle>
-            <rect x="370" y="300" width="18" height="18" rx="4" fill="hsl(var(--primary-foreground))" opacity="0.4">
-                <animate attributeName="y" from="290" to="310" dur="3.5s" repeatCount="indefinite" direction="alternate" />
+            <rect x="420" y="120" width="18" height="18" rx="4" fill="hsl(var(--primary-foreground))" opacity="0.4">
+                <animate attributeName="y" from="110" to="130" dur="3.5s" repeatCount="indefinite" direction="alternate" />
             </rect>
-             <circle cx="200" cy="320" r="9" fill="hsl(var(--primary-foreground))" opacity="0.6">
-                <animate attributeName="cy" from="310" to="330" dur="1.8s" repeatCount="indefinite" direction="alternate" />
+             <circle cx="300" cy="400" r="9" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                <animate attributeName="cy" from="390" to="410" dur="1.8s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+             <rect x="150" y="100" width="12" height="12" rx="3" fill="hsl(var(--primary-foreground))" opacity="0.5">
+                <animateTransform attributeName="transform" type="rotate" from="360 156 106" to="0 156 106" dur="5.5s" repeatCount="indefinite" />
+            </rect>
+             <circle cx="400" cy="90" r="8" fill="hsl(var(--primary-foreground))" opacity="0.7">
+                <animate attributeName="r" from="6" to="10" dur="3.2s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+             <circle cx="80" cy="350" r="6" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                <animate attributeName="cx" from="75" to="85" dur="2.1s" repeatCount="indefinite" direction="alternate" />
             </circle>
 
         </g>
 
         {/* Bar Chart Elements */}
-        <g opacity="0.8" transform="translate(130, 180) scale(0.5)">
+        <g opacity="0.8" transform="translate(130, 180) scale(0.6)">
             <rect x="50" y="180" width="40" height="70" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
                  <animate attributeName="height" from="0" to="70" dur="0.4s" begin="0s; 4s" fill="freeze" />
                  <animate attributeName="y" from="250" to="180" dur="0.4s" begin="0s; 4s" fill="freeze" />
