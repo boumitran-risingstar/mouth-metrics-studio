@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
@@ -10,6 +9,7 @@ import { SocialProfileCard } from '@/components/profile/social-profile-card';
 import { EducationCard } from '@/components/profile/education-card';
 import { ProfessionCard } from '@/components/profile/profession-card';
 import { ArticlesCard } from '@/components/profile/articles-card';
+import { ProfileInformationCard } from '@/components/profile/profile-information-card';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -44,6 +44,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto py-10 space-y-8">
+      <ProfileInformationCard />
       <ProfessionCard />
       <EducationCard />
       <ArticlesCard />
