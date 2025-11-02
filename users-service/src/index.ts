@@ -8,7 +8,7 @@ import cors from 'cors';
 admin.initializeApp({
     projectId: 'studio-3300538966-77056',
 });
-const db = admin.firestore('users');
+const db = admin.firestore();
 
 const app = express();
 const port = parseInt(process.env.PORT || '8080', 10);
