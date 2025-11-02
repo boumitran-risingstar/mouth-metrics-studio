@@ -101,7 +101,7 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
         </g>
 
         {/* Bar Chart Elements */}
-        <g opacity="0.8" transform="translate(100, 180) scale(0.6)">
+        <g opacity="0.8" transform="translate(105, 180) scale(0.6)">
             <rect x="50" y="250" width="30" height="0" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.5">
                  <animate id="draw1" attributeName="height" from="0" to="50" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
                  <animate attributeName="y" from="250" to="200" dur="0.3s" begin="0s;erase7.end" fill="freeze" />
