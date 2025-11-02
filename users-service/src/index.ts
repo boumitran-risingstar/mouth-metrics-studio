@@ -78,7 +78,7 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
             data.name = name;
         }
 
-        const userDoc = await userDoc.get();
+        const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
             data.createdAt = admin.firestore.FieldValue.serverTimestamp();
