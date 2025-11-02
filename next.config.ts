@@ -38,8 +38,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/users/:path*',
-        destination: 'http://127.0.0.1:8080/users/:path*',
+        source: '/api/profile/:path*',
+        destination: 'http://127.0.0.1:8080/profile/:path*',
       },
       {
         source: '/api/businesses/:path*',
@@ -48,10 +48,6 @@ const nextConfig: NextConfig = {
       {
         source: '/api/social-profiles/:path*',
         destination: 'http://127.0.0.1:8082/social-profiles/:path*',
-      },
-      {
-        source: '/api/professions/:path*',
-        destination: 'http://127.0.0.1:8083/professions/:path*',
       },
       {
         source: '/api/educations/:path*',

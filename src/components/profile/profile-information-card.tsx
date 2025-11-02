@@ -7,7 +7,7 @@ import { auth } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Edit, Loader2, PlusCircle, Trash2, User as UserIcon, Phone, Mail } from 'lucide-react';
+import { Edit, Loader2, PlusCircle, Trash2, User as UserIcon, Phone, Mail, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,7 @@ export function ProfileInformationCard() {
         setLoading(true);
         try {
             const idToken = await currentUser.getIdToken();
-            const response = await fetch(`/api/users/${currentUser.uid}`, {
+            const response = await fetch(`/api/profile/${currentUser.uid}`, {
                 headers: { Authorization: `Bearer ${idToken}` }
             });
             if (response.ok) {
@@ -98,7 +98,7 @@ export function ProfileInformationCard() {
         setIsProcessing(true);
         try {
             const idToken = await user.getIdToken();
-            const response = await fetch(`/api/users`, {
+            const response = await fetch(`/api/profile`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ export function ProfileInformationCard() {
         }
     };
     
-    const hasData = profile && (profile.name || profile.phoneNumber || profile.emails.length > 0);
+    const hasData = profile && (profile.name || profile.phoneNumber || (profile.emails && profile.emails.length > 0));
 
     return (
         <Card className="max-w-2xl mx-auto">

@@ -48,13 +48,13 @@ const checkAuth = async (req: AuthenticatedRequest, res: Response, next: NextFun
 
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Users service is running!');
+  res.send('Profile service is running!');
 });
 
-const userRouter = express.Router();
+const profileRouter = express.Router();
 
 // Create or update user profile
-userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
+profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
     const { phoneNumber, name, emails } = req.body;
     const uid = req.user?.uid;
 
@@ -101,7 +101,7 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
 
 
 // Example user route
-userRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
+profileRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     const requestingUid = req.user?.uid;
 
@@ -131,8 +131,8 @@ userRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Respons
     }
 });
 
-app.use('/users', userRouter);
+app.use('/profile', profileRouter);
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Users service listening on port ${port}`);
+  console.log(`Profile service listening on port ${port}`);
 });

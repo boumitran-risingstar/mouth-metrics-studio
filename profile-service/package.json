@@ -1,8 +1,8 @@
 
 {
-  "name": "users-service",
+  "name": "profile-service",
   "version": "1.0.0",
-  "description": "Users service for Mouth Metrics Studio",
+  "description": "Profile service for Mouth Metrics Studio",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
