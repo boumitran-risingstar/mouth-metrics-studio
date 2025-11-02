@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "A smiling person showing their teeth.",
+      "imageUrl": "https://images.unsplash.com/photo-1675526607070-f5cbd71dde92?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkZW50YWwlMjBzbWlsZXxlbnwwfHx8fDE3NjIwNjE2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dental smile"
+    }
+  ]
 }
