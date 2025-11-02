@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, type User, sendEmailVerification, updateEmail as firebaseUpdateEmail, reauthenticateWithCredential, PhoneAuthProvider } from 'firebase/auth';
+import { onAuthStateChanged, type User, sendEmailVerification, updateEmail as firebaseUpdateEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -121,10 +121,9 @@ export default function ProfilePage() {
     if (newEmail && !emails.some(e => e.address === newEmail)) {
       const updatedEmails = [...emails, { address: newEmail, verified: false }];
       setEmails(updatedEmails);
+      // We are not auto-saving anymore, user has to click "Save Profile"
       setIsAddingEmail(false);
       setNewEmail('');
-      // Immediately save after adding
-      handleProfileUpdate();
     } else {
         toast({
             variant: "destructive",
@@ -134,32 +133,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemoveEmail = (emailToRemove: string) => {
+    setEmails(emails.filter(email => email.address !== emailToRemove));
+  };
+
+
   const handleSendVerification = async (emailAddress: string) => {
     if (!user) return;
 
-    // This is a complex flow in Firebase. 
-    // You can't just add a new email and verify it.
-    // You must *update* the user's primary email in Auth, which sends a verification.
-    // We'll update to the new email, send verification, and then (optionally) revert.
-    // For simplicity, we'll just try to update it.
-    
     toast({ title: "Sending Verification...", description: `Sending verification link to ${emailAddress}`});
     
     try {
-        // Firebase requires recent login to update email. Let's just try first.
+        // Firebase requires the user's primary email to be updated to send a verification.
+        // We will temporarily set it, send the email, and then user can continue.
+        // The verification status will be updated in Firebase Auth and then reflected in our DB.
         await firebaseUpdateEmail(user, emailAddress);
         await sendEmailVerification(user);
 
         toast({
             title: "Verification Sent!",
-            description: `A verification link has been sent to ${emailAddress}. Please check your inbox.`,
+            description: `A verification link has been sent to ${emailAddress}. Please check your inbox and refresh this page after verifying.`,
         });
 
     } catch(error: any) {
         console.error("Error sending verification email:", error);
         if (error.code === 'auth/requires-recent-login') {
             setError("This is a sensitive operation. Please sign in again to verify your email.");
-            // Optionally, force re-authentication here.
         } else if (error.code === 'auth/email-already-in-use') {
              setError("This email address is already in use by another account.");
         } else {
@@ -215,7 +214,7 @@ export default function ProfilePage() {
                         ) : (
                             <>
                                 <p className="text-lg flex-1">{name || 'Not set'}</p>
-                                <Button variant="ghost" size="icon" onClick={() => setIsNameEditing(true)}>
+                                <Button type="button" variant="ghost" size="icon" onClick={() => setIsNameEditing(true)}>
                                     <Pencil className="h-4 w-4" />
                                 </Button>
                             </>
@@ -234,12 +233,14 @@ export default function ProfilePage() {
                                         {email.verified ? (
                                             <CheckCircle className="h-4 w-4 text-green-500" />
                                         ) : (
-                                            <Button size="sm" variant="outline" onClick={() => handleSendVerification(email.address)}>
+                                            <Button size="sm" type="button" variant="outline" onClick={() => handleSendVerification(email.address)}>
                                                 Verify
                                             </Button>
                                         )}
                                     </div>
-                                    {/* Optional: Add a delete button here */}
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveEmail(email.address)}>
+                                      <X className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             ))}
                         </div>
