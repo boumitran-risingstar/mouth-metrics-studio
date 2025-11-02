@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
   serverActions: {
     bodySizeLimit: '2mb',
   },
+  env: {
+    NEXT_PUBLIC_USERS_SERVICE_HOST: process.env.NEXT_PUBLIC_USERS_SERVICE_HOST,
+  }
 };
 
 export default nextConfig;
