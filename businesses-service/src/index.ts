@@ -24,13 +24,17 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 
+interface AuthenticatedRequest extends Request {
+    user?: admin.auth.DecodedIdToken;
+}
+
 // Middleware to check authentication
-const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+const checkAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
         const idToken = req.headers.authorization.split('Bearer ')[1];
         try {
             const decodedToken = await admin.auth().verifyIdToken(idToken);
-            (req as any).user = decodedToken;
+            req.user = decodedToken;
             return next();
         } catch (error) {
             console.error('Error while verifying Firebase ID token:', error);
@@ -49,10 +53,63 @@ app.get('/', (req: Request, res: Response) => {
 const businessRouter = express.Router();
 businessRouter.use(checkAuth);
 
+// Get all businesses for the authenticated user
+businessRouter.get('/', async (req: AuthenticatedRequest, res: Response) => {
+    const ownerId = req.user?.uid;
+    if (!ownerId) {
+        return res.status(401).json({ error: 'User must be logged in.' });
+    }
+
+    try {
+        const businessesRef = db.collection('businesses');
+        const snapshot = await businessesRef.where('ownerId', '==', ownerId).get();
+        
+        if (snapshot.empty) {
+            return res.json([]);
+        }
+
+        const businessesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(businessesData);
+    } catch (error) {
+        console.error(`Error fetching businesses for user ${ownerId}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
+// Create a new business
+businessRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
+    const ownerId = req.user?.uid;
+    if (!ownerId) {
+        return res.status(401).json({ error: 'User must be logged in to create a business.' });
+    }
+
+    const { name, address } = req.body;
+    if (!name || !address) {
+        return res.status(400).json({ error: 'Missing required fields: name and address.' });
+    }
+
+    try {
+        const newBusinessRef = db.collection('businesses').doc();
+        const newBusiness = {
+            name,
+            address,
+            ownerId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        await newBusinessRef.set(newBusiness);
+
+        res.status(201).json({ id: newBusinessRef.id, ...newBusiness });
+    } catch (error) {
+        console.error(`Error creating business for user ${ownerId}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 // Example business route
 businessRouter.get('/:id', (req: Request, res: Response) => {
     const { id } = req.params;
-    // In a real application, you would fetch business data from a database
+    // This is now a placeholder, actual fetching should be more specific
     res.json({ id, name: `Business #${id}`, address: '123 Main St' });
 });
 
