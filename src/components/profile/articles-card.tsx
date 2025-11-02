@@ -119,6 +119,7 @@ export function ArticlesCard() {
     };
 
     const isValidDate = (dateString: string) => {
+        if (!dateString) return false;
         const date = parseISO(dateString);
         return date instanceof Date && !isNaN(date.getTime());
     };
@@ -170,7 +171,7 @@ export function ArticlesCard() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor={`publicationDate-${index}`}>Publication Date</Label>
-                                    <Input id={`publicationDate-${index}`} type="date" value={article.publicationDate} onChange={(e) => handleFieldChange(index, 'publicationDate', e.target.value)} />
+                                    <Input id={`publicationDate-${index}`} type="date" value={article.publicationDate || ''} onChange={(e) => handleFieldChange(index, 'publicationDate', e.target.value)} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor={`url-${index}`}>URL</Label>
@@ -192,16 +193,20 @@ export function ArticlesCard() {
                                         <Newspaper className="h-4 w-4 flex-shrink-0" />
                                         <span>{article.publication}</span>
                                     </div>
-                                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                        <Calendar className="h-4 w-4 flex-shrink-0" />
-                                        <span>{isValidDate(article.publicationDate) ? format(parseISO(article.publicationDate), "MMMM d, yyyy") : 'Invalid Date'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-sm">
-                                        <LinkIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                                        <Link href={article.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
-                                            {article.url}
-                                        </Link>
-                                    </div>
+                                    {isValidDate(article.publicationDate) && (
+                                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                            <Calendar className="h-4 w-4 flex-shrink-0" />
+                                            <span>{format(parseISO(article.publicationDate), "MMMM d, yyyy")}</span>
+                                        </div>
+                                    )}
+                                    {article.url && (
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <LinkIcon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                                            <Link href={article.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
+                                                {article.url}
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                                 {index < articles.length - 1 && <Separator className="my-6" />}
                             </div>
