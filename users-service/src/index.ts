@@ -1,6 +1,7 @@
 
 import express, { Request, Response, NextFunction } from 'express';
 import admin from 'firebase-admin';
+import cors from 'cors';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
@@ -8,8 +9,16 @@ admin.initializeApp();
 const db = admin.firestore();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = parseInt(process.env.PORT || '8080', 10);
 
+const corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Extend the Express Request type to include the user property
