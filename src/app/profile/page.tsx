@@ -2,14 +2,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, type User, sendEmailVerification, updateEmail as firebaseUpdateEmail } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle, AlertCircle, Pencil, PlusCircle, X } from 'lucide-react';
+import { Loader2, AlertCircle, Pencil, PlusCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -121,7 +121,6 @@ export default function ProfilePage() {
     if (newEmail && !emails.some(e => e.address === newEmail)) {
       const updatedEmails = [...emails, { address: newEmail, verified: false }];
       setEmails(updatedEmails);
-      // We are not auto-saving anymore, user has to click "Save Profile"
       setIsAddingEmail(false);
       setNewEmail('');
     } else {
@@ -135,36 +134,6 @@ export default function ProfilePage() {
 
   const handleRemoveEmail = (emailToRemove: string) => {
     setEmails(emails.filter(email => email.address !== emailToRemove));
-  };
-
-
-  const handleSendVerification = async (emailAddress: string) => {
-    if (!user) return;
-
-    toast({ title: "Sending Verification...", description: `Sending verification link to ${emailAddress}`});
-    
-    try {
-        // Firebase requires the user's primary email to be updated to send a verification.
-        // We will temporarily set it, send the email, and then user can continue.
-        // The verification status will be updated in Firebase Auth and then reflected in our DB.
-        await firebaseUpdateEmail(user, emailAddress);
-        await sendEmailVerification(user);
-
-        toast({
-            title: "Verification Sent!",
-            description: `A verification link has been sent to ${emailAddress}. Please check your inbox and refresh this page after verifying.`,
-        });
-
-    } catch(error: any) {
-        console.error("Error sending verification email:", error);
-        if (error.code === 'auth/requires-recent-login') {
-            setError("This is a sensitive operation. Please sign in again to verify your email.");
-        } else if (error.code === 'auth/email-already-in-use') {
-             setError("This email address is already in use by another account.");
-        } else {
-            setError(error.message || "Failed to send verification email.");
-        }
-    }
   };
 
 
@@ -230,13 +199,6 @@ export default function ProfilePage() {
                                 <div key={index} className="flex items-center justify-between p-2 border rounded-md">
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm">{email.address}</span>
-                                        {email.verified ? (
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
-                                        ) : (
-                                            <Button size="sm" type="button" variant="outline" onClick={() => handleSendVerification(email.address)}>
-                                                Verify
-                                            </Button>
-                                        )}
                                     </div>
                                     <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveEmail(email.address)}>
                                       <X className="h-4 w-4" />
