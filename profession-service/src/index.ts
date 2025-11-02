@@ -4,6 +4,7 @@ import admin from 'firebase-admin';
 import cors from 'cors';
 import 'dotenv/config';
 
+// Initialize Firebase Admin SDK
 admin.initializeApp({
     projectId: process.env.FIREBASE_PROJECT_ID,
 });

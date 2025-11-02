@@ -1,62 +1,25 @@
-import type {NextConfig} from 'next';
-import 'dotenv/config';
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
+{
+  "name": "profession-service",
+  "version": "1.0.0",
+  "description": "Profession service for Mouth Metrics Studio",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev src/index.ts",
+    "build": "tsc"
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^12.3.0"
   },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-  serverActions: {
-    bodySizeLimit: '2mb',
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/users/:path*',
-        destination: 'http://127.0.0.1:8080/users/:path*',
-      },
-      {
-        source: '/api/businesses/:path*',
-        destination: 'http://127.0.0.1:8081/businesses/:path*',
-      },
-      {
-        source: '/api/social-profiles/:path*',
-        destination: 'http://127.0.0.1:8082/social-profiles/:path*',
-      },
-      {
-        source: '/api/educations/:path*',
-        destination: 'http://127.0.0.1:8084/educations/:path*',
-      },
-    ];
-  },
-  env: {
-    
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.2"
   }
-};
-
-export default nextConfig;
+}
