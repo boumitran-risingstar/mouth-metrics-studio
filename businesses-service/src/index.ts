@@ -10,6 +10,28 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
+// Middleware to check App Check token
+const checkAppCheck = async (req: Request, res: Response, next: NextFunction) => {
+    const appCheckToken = req.header('X-Firebase-AppCheck');
+
+    if (!appCheckToken) {
+        // Allow requests to the root path without App Check for health checks
+        if (req.path === '/') {
+            return next();
+        }
+        return res.status(401).send('Unauthorized: No App Check token.');
+    }
+
+    try {
+        await admin.appCheck().verifyToken(appCheckToken);
+        return next();
+    } catch (err) {
+        console.error('Error verifying App Check token:', err);
+        return res.status(401).send('Unauthorized: Invalid App Check token.');
+    }
+};
+
+
 // Middleware to check authentication
 const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
@@ -34,6 +56,8 @@ app.get('/', (req: Request, res: Response) => {
 
 // Protect all business routes with the authentication middleware
 const businessRouter = express.Router();
+// Apply App Check verification first, then Auth verification
+businessRouter.use(checkAppCheck);
 businessRouter.use(checkAuth);
 
 // Example business route
