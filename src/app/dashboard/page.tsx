@@ -56,8 +56,17 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      await updateEmail(user, email);
-      await sendEmailVerification(user);
+      // Logic for adding a new email or updating a verified one
+      if (!user.email || user.emailVerified) {
+        await updateEmail(user, email);
+        await sendEmailVerification(user);
+      } else {
+        // This case should not be hit due to UI disable, but as a safeguard:
+        setError("Please verify your current email before changing it.");
+        setIsProcessing(false);
+        return;
+      }
+      
 
       const idToken = await user.getIdToken(true); // Force refresh to get latest claims
       const response = await fetch(`/api/users`, {
@@ -105,6 +114,8 @@ export default function DashboardPage() {
     return null;
   }
 
+  const isEmailUnverified = user.email && !user.emailVerified;
+
   return (
     <div className="container mx-auto py-10 space-y-8">
       <Card className="max-w-2xl mx-auto">
@@ -149,6 +160,14 @@ export default function DashboardPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+               {isEmailUnverified && (
+                <Alert variant="default">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Please verify your current email address before you can update it.
+                  </AlertDescription>
+                </Alert>
+              )}
               <div className="space-y-2">
                   <Label htmlFor="email">{user.email ? "Update Email" : "Add Email"}</Label>
                   <div className="flex gap-2">
@@ -159,14 +178,15 @@ export default function DashboardPage() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
+                          disabled={isEmailUnverified}
                       />
                   </div>
               </div>
-              <Button type="submit" disabled={isProcessing}>
+              <Button type="submit" disabled={isProcessing || isEmailUnverified}>
                 {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isProcessing ? "Processing..." : (user.email ? "Update & Re-verify Email" : "Add & Verify Email")}
               </Button>
-               {!user.emailVerified && user.email && (
+               {isEmailUnverified && (
                  <Button type="button" variant="outline" onClick={async () => {
                    await sendEmailVerification(user);
                    toast({ title: "Verification Email Sent", description: `A verification link has been sent to ${user.email}.` });
