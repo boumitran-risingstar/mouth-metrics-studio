@@ -5,7 +5,9 @@ import cors from 'cors';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
-admin.initializeApp();
+admin.initializeApp({
+    projectId: 'studio-3300538966-77056',
+});
 
 const app = express();
 const port = parseInt(process.env.PORT || '8081', 10);
