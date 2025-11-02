@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Github, Linkedin, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 // SVG Icon components for social media brands
 const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -118,6 +119,7 @@ export function SocialProfileCard() {
     const [user, setUser] = useState<User | null>(null);
     const [socials, setSocials] = useState<SocialPlatform[]>([]);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -145,6 +147,13 @@ export function SocialProfileCard() {
 
         return () => unsubscribe();
     }, []);
+
+    const handleConnectClick = () => {
+        toast({
+            title: "Coming Soon!",
+            description: "Good things are coming. This feature is under development.",
+        });
+    };
     
 
     return (
@@ -183,6 +192,7 @@ export function SocialProfileCard() {
                             <Button
                             variant={platform.connected ? "secondary" : "default"}
                             size="sm"
+                            onClick={handleConnectClick}
                             >
                             {platform.connected ? "Disconnect" : "Connect"}
                             </Button>
