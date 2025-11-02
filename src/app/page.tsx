@@ -73,6 +73,31 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
                 <animate attributeName="cx" from="75" to="85" dur="2.1s" repeatCount="indefinite" direction="alternate" />
             </circle>
 
+            {/* Added sprinkler animations */}
+            <circle cx="250" cy="250" r="4" fill="hsl(var(--primary-foreground))" opacity="0.8">
+                 <animate attributeName="r" from="2" to="5" dur="2s" repeatCount="indefinite" direction="alternate" />
+                 <animate attributeName="cx" from="245" to="255" dur="2.5s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+             <rect x="280" y="220" width="8" height="8" rx="2" fill="hsl(var(--primary-foreground))" opacity="0.7">
+                <animateTransform attributeName="transform" type="rotate" from="0 284 224" to="360 284 224" dur="4s" repeatCount="indefinite" />
+            </rect>
+            <circle cx="220" cy="280" r="5" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                <animate attributeName="cy" from="275" to="285" dur="1.5s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+            <rect x="200" y="200" width="10" height="10" rx="3" fill="hsl(var(--primary-foreground))" opacity="0.5">
+                <animate attributeName="y" from="195" to="205" dur="3s" repeatCount="indefinite" direction="alternate" />
+                 <animateTransform attributeName="transform" type="rotate" from="0 205 205" to="180 205 205" dur="5s" repeatCount="indefinite" direction="alternate" />
+            </rect>
+             <circle cx="300" cy="290" r="6" fill="hsl(var(--primary-foreground))" opacity="0.9">
+                 <animate attributeName="r" from="4" to="7" dur="2.5s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+            <circle cx="180" cy="310" r="3" fill="hsl(var(--primary-foreground))" opacity="0.7">
+                 <animate attributeName="cx" from="178" to="182" dur="1.2s" repeatCount="indefinite" direction="alternate" />
+            </circle>
+            <rect x="320" y="250" width="7" height="7" rx="2" fill="hsl(var(--primary-foreground))" opacity="0.6">
+                <animateTransform attributeName="transform" type="rotate" from="360 323.5 253.5" to="0 323.5 253.5" dur="6s" repeatCount="indefinite" />
+            </rect>
+
         </g>
 
         {/* Bar Chart Elements */}
