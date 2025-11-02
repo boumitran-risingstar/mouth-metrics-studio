@@ -1,9 +1,13 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
+import { onAuthStateChanged, type User } from 'firebase/auth';
+import { auth } from '@/lib/firebase/client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Github, Linkedin } from "lucide-react";
+import { Github, Linkedin, Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // SVG Icon components for social media brands
 const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -95,17 +99,57 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-const socialPlatforms = [
-    { name: "LinkedIn", icon: Linkedin, connected: false },
-    { name: "Facebook", icon: FacebookIcon, connected: false },
-    { name: "Instagram", icon: InstagramIcon, connected: false },
-    { name: "X (Twitter)", icon: XIcon, connected: false },
-    { name: "Pinterest", icon: PinterestIcon, connected: true },
-    { name: "GitHub", icon: Github, connected: false },
-    { name: "YouTube", icon: YoutubeIcon, connected: false },
-];
+const iconMap: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = {
+    LinkedIn: Linkedin,
+    Facebook: FacebookIcon,
+    Instagram: InstagramIcon,
+    X: XIcon,
+    Pinterest: PinterestIcon,
+    GitHub: Github,
+    YouTube: YoutubeIcon,
+};
+
+type SocialPlatform = {
+    name: string;
+    connected: boolean;
+};
 
 export function SocialProfileCard() {
+    const [user, setUser] = useState<User | null>(null);
+    const [socials, setSocials] = useState<SocialPlatform[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                try {
+                    const idToken = await currentUser.getIdToken();
+                    const response = await fetch('/api/social-profiles', {
+                        headers: { Authorization: `Bearer ${idToken}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Handle "X (Twitter)" from hardcoded vs "X" from service
+                        setSocials(data.map((s: SocialPlatform) => 
+                            s.name === "X" ? { ...s, name: "X (Twitter)" } : s
+                        ));
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch social profiles:", error);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setUser(null);
+                setLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+    
+
     return (
         <Card className="max-w-2xl mx-auto">
             <CardHeader>
@@ -116,26 +160,39 @@ export function SocialProfileCard() {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                {socialPlatforms.map((platform) => {
-                    const Icon = platform.icon;
-                    return (
-                    <div
-                        key={platform.name}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                        <div className="flex items-center gap-3">
-                        <Icon className="h-6 w-6" />
-                        <span className="font-medium">{platform.name}</span>
+                {loading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                           <div className="flex items-center gap-3">
+                             <Skeleton className="h-6 w-6 rounded-full" />
+                             <Skeleton className="h-4 w-24" />
+                           </div>
+                           <Skeleton className="h-8 w-[100px]" />
                         </div>
-                        <Button
-                        variant={platform.connected ? "secondary" : "default"}
-                        size="sm"
+                    ))
+                ) : (
+                    socials.map((platform) => {
+                        const platformNameForIcon = platform.name === "X (Twitter)" ? "X" : platform.name;
+                        const Icon = iconMap[platformNameForIcon];
+                        return (
+                        <div
+                            key={platform.name}
+                            className="flex items-center justify-between p-3 border rounded-lg"
                         >
-                        {platform.connected ? "Disconnect" : "Connect"}
-                        </Button>
-                    </div>
-                    );
-                })}
+                            <div className="flex items-center gap-3">
+                            {Icon && <Icon className="h-6 w-6" />}
+                            <span className="font-medium">{platform.name}</span>
+                            </div>
+                            <Button
+                            variant={platform.connected ? "secondary" : "default"}
+                            size="sm"
+                            >
+                            {platform.connected ? "Disconnect" : "Connect"}
+                            </Button>
+                        </div>
+                        );
+                    })
+                )}
                 </div>
             </CardContent>
         </Card>
