@@ -26,12 +26,24 @@ const HeroSvg = (props: React.SVGProps<SVGSVGElement>) => (
             d="M 125,100 C 50,125 50,225 100,275 C 100,350 150,425 250,425 C 350,425 400,350 400,275 C 450,225 450,125 375,100 C 325,50 175,50 125,100 Z"
         />
         </g>
-        <circle cx="150" cy="200" r="15" fill="hsl(var(--primary-foreground))" opacity="0.7" />
-        <circle cx="250" cy="150" r="10" fill="hsl(var(--primary-foreground))" opacity="0.8" />
-        <circle cx="350" cy="220" r="20" fill="hsl(var(--primary-foreground))" opacity="0.6" />
-        <path d="M 150 300 Q 250 250, 350 320" stroke="hsl(var(--primary-foreground))" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.75" />
-        <line x1="180" y1="350" x2="240" y2="350" stroke="hsl(var(--primary-foreground))" strokeWidth="8" strokeLinecap="round" opacity="0.5" />
-        <line x1="280" y1="380" x2="320" y2="380" stroke="hsl(var(--primary-foreground))" strokeWidth="8" strokeLinecap="round" opacity="0.6" />
+        
+        {/* Bar Chart Elements */}
+        <g opacity="0.8" transform="translate(150, 200) scale(0.4)">
+            <rect x="50" y="150" width="40" height="100" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.7">
+                 <animate attributeName="height" from="10" to="100" dur="1s" fill="freeze" />
+            </rect>
+            <rect x="110" y="100" width="40" height="150" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.8">
+                <animate attributeName="height" from="10" to="150" dur="1s" begin="0.2s" fill="freeze" />
+            </rect>
+            <rect x="170" y="180" width="40" height="70" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.6">
+                 <animate attributeName="height" from="10" to="70" dur="1s" begin="0.4s" fill="freeze" />
+            </rect>
+            <rect x="230" y="120" width="40" height="130" fill="hsl(var(--primary-foreground))" rx="5" ry="5" opacity="0.75">
+                 <animate attributeName="height" from="10" to="130" dur="1s" begin="0.6s" fill="freeze" />
+            </rect>
+        </g>
+
+        <path d="M 150 300 Q 250 250, 350 320" stroke="hsl(var(--primary-foreground))" strokeWidth="8" fill="none" strokeLinecap="round" opacity="0.5" />
     </svg>
 );
 
