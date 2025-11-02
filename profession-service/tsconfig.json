@@ -1,14 +1,62 @@
-{
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+import type {NextConfig} from 'next';
+import 'dotenv/config';
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  typescript: {
+    ignoreBuildErrors: true,
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
-}
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  serverActions: {
+    bodySizeLimit: '2mb',
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/users/:path*',
+        destination: 'http://127.0.0.1:8080/users/:path*',
+      },
+      {
+        source: '/api/businesses/:path*',
+        destination: 'http://127.0.0.1:8081/businesses/:path*',
+      },
+      {
+        source: '/api/social-profiles/:path*',
+        destination: 'http://127.0.0.1:8082/social-profiles/:path*',
+      },
+      {
+        source: '/api/educations/:path*',
+        destination: 'http://127.0.0.1:8084/educations/:path*',
+      },
+    ];
+  },
+  env: {
+    
+  }
+};
+
+export default nextConfig;
