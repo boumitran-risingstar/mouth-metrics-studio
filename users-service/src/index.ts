@@ -1,3 +1,4 @@
+
 import express, { Request, Response, NextFunction } from 'express';
 import admin from 'firebase-admin';
 
@@ -10,6 +11,11 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(express.json());
+
+// Extend the Express Request type to include the user property
+interface AuthenticatedRequest extends Request {
+    user?: admin.auth.DecodedIdToken;
+}
 
 // Middleware to check App Check token
 const checkAppCheck = async (req: Request, res: Response, next: NextFunction) => {
@@ -33,13 +39,12 @@ const checkAppCheck = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 // Middleware to check authentication
-const checkAuth = async (req: Request, res: Response, next: NextFunction) => {
+const checkAuth = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
         const idToken = req.headers.authorization.split('Bearer ')[1];
         try {
             const decodedToken = await admin.auth().verifyIdToken(idToken);
-            // You can attach user info to the request object if needed
-            // (req as any).user = decodedToken;
+            req.user = decodedToken;
             return next();
         } catch (error) {
             console.error('Error while verifying Firebase ID token:', error);
@@ -60,6 +65,31 @@ const userRouter = express.Router();
 // Apply App Check verification first, then Auth verification
 userRouter.use(checkAppCheck);
 userRouter.use(checkAuth);
+
+// Create or update user profile
+userRouter.post('/', async (req: AuthenticatedRequest, res: Response) => {
+    const { phoneNumber } = req.body;
+    const uid = req.user?.uid;
+
+    if (!uid) {
+        return res.status(400).json({ error: 'User UID not found in token.' });
+    }
+
+    try {
+        const userRef = db.collection('users').doc(uid);
+        await userRef.set({
+            phoneNumber,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        const userDoc = await userRef.get();
+        res.status(201).json({ id: userDoc.id, ...userDoc.data() });
+    } catch (error) {
+        console.error(`Error creating/updating user profile for ${uid}:`, error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 // Example user route
 userRouter.get('/:id', async (req: Request, res: Response) => {
