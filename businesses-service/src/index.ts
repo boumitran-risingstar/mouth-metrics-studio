@@ -5,7 +5,9 @@ import cors from 'cors';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
-admin.initializeApp();
+admin.initializeApp({
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+});
 const db = admin.firestore();
 
 const app = express();

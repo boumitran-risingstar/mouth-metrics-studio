@@ -5,7 +5,9 @@ import cors from 'cors';
 
 // Initialize Firebase Admin SDK
 // The SDK will automatically use Google Application Default Credentials on Cloud Run
-admin.initializeApp();
+admin.initializeApp({
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+});
 const db = admin.firestore();
 
 const app = express();
@@ -62,25 +64,30 @@ userRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response)
     try {
         const userRef = db.collection('users').doc(uid);
         const data: any = {
-            phoneNumber,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
+        // Only add fields if they are provided in the request
+        if (phoneNumber !== undefined) {
+            data.phoneNumber = phoneNumber;
+        }
         if (name !== undefined) {
             data.name = name;
         }
         if (emails !== undefined) {
-            data.emails = emails; // Expecting an array of objects
+            // Ensure emails is always an array, even if it's empty
+            data.emails = Array.isArray(emails) ? emails : [];
         }
 
         const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
             data.createdAt = admin.firestore.FieldValue.serverTimestamp();
+            // Set defaults for new users if not provided
             if (name === undefined) data.name = '';
             if (emails === undefined) data.emails = [];
         }
-
+        
         await userRef.set(data, { merge: true });
 
         const updatedUserDoc = await userRef.get();
