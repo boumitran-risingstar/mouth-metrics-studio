@@ -12,91 +12,54 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-type UserProfile = {
-    name: string;
-    phoneNumber: string;
-    emails: { address: string; verified: boolean }[];
-    photoURL?: string;
-};
+import { useUserProfile, type UserProfile } from '@/context/user-profile-context';
 
 export function ProfileInformationCard() {
-    const [user, setUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const { user, userProfile, setUserProfile, loading, error } = useUserProfile();
+    const [localProfile, setLocalProfile] = useState<UserProfile | null>(null);
     const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
-
-    const fetchUserProfile = useCallback(async (currentUser: User) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const idToken = await currentUser.getIdToken();
-            const response = await fetch(`/api/profile/${currentUser.uid}`, {
-                headers: { Authorization: `Bearer ${idToken}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setProfile(data);
-                setOriginalProfile(JSON.parse(JSON.stringify(data)));
-            } else {
-                throw new Error("Service not available");
-            }
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-            setError("Could not load profile information.");
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
+    
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                fetchUserProfile(currentUser);
-            } else {
-                setUser(null);
-                setLoading(false);
-            }
-        });
-
-        return () => unsubscribe();
-    }, [fetchUserProfile]);
+        if(userProfile) {
+            const profileCopy = JSON.parse(JSON.stringify(userProfile));
+            setLocalProfile(profileCopy);
+            setOriginalProfile(profileCopy);
+        }
+    }, [userProfile]);
 
     const handleFieldChange = (field: keyof UserProfile, value: any) => {
-        if (profile) {
-            setProfile({ ...profile, [field]: value });
+        if (localProfile) {
+            setLocalProfile({ ...localProfile, [field]: value });
         }
     };
 
     const handleEmailChange = (index: number, value: string) => {
-        if (profile) {
-            const newEmails = [...profile.emails];
+        if (localProfile) {
+            const newEmails = [...localProfile.emails];
             newEmails[index].address = value;
             handleFieldChange('emails', newEmails);
         }
     };
 
     const addEmail = () => {
-        if (profile) {
-            handleFieldChange('emails', [...profile.emails, { address: '', verified: false }]);
+        if (localProfile) {
+            handleFieldChange('emails', [...localProfile.emails, { address: '', verified: false }]);
         }
     };
 
     const removeEmail = (index: number) => {
-        if (profile) {
-            handleFieldChange('emails', profile.emails.filter((_, i) => i !== index));
+        if (localProfile) {
+            handleFieldChange('emails', localProfile.emails.filter((_, i) => i !== index));
         }
     };
 
     const handleCancel = () => {
-        setProfile(originalProfile);
+        setLocalProfile(originalProfile);
         setIsEditing(false);
     };
 
@@ -116,9 +79,12 @@ export function ProfileInformationCard() {
 
             if (response.ok) {
                 const savedData = await response.json();
-                setProfile(savedData);
-                setOriginalProfile(JSON.parse(JSON.stringify(savedData)));
-                if(Object.keys(dataToSave).length > 1) { // Only show toast for main save, not just photo
+                setUserProfile(savedData);
+                const savedCopy = JSON.parse(JSON.stringify(savedData));
+                setLocalProfile(savedCopy);
+                setOriginalProfile(savedCopy);
+                
+                if(Object.keys(dataToSave).length > 1) { 
                     toast({ title: "Success", description: "Your profile has been updated." });
                 }
                 return true;
@@ -135,10 +101,10 @@ export function ProfileInformationCard() {
     };
     
     const onSaveClick = async () => {
-        if (!profile) return;
+        if (!localProfile) return;
         const success = await handleSave({
-            name: profile.name,
-            emails: profile.emails,
+            name: localProfile.name,
+            emails: localProfile.emails,
         });
         if (success) {
             setIsEditing(false);
@@ -190,7 +156,7 @@ export function ProfileInformationCard() {
         }
     };
 
-    const hasData = profile && (profile.name || profile.phoneNumber || (profile.emails && profile.emails.length > 0));
+    const hasData = localProfile && (localProfile.name || localProfile.phoneNumber || (localProfile.emails && localProfile.emails.length > 0));
 
     return (
         <Card className="max-w-2xl mx-auto">
@@ -202,7 +168,7 @@ export function ProfileInformationCard() {
                     </div>
                     <div className="relative">
                         <Avatar className="h-20 w-20 border-2">
-                             <AvatarImage src={profile?.photoURL} alt={profile?.name} />
+                             <AvatarImage src={localProfile?.photoURL} alt={localProfile?.name} />
                              <AvatarFallback>
                                  <UserIcon className="h-10 w-10 text-muted-foreground" />
                              </AvatarFallback>
@@ -241,15 +207,15 @@ export function ProfileInformationCard() {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
-                            <Input id="name" value={profile?.name || ''} onChange={(e) => handleFieldChange('name', e.target.value)} />
+                            <Input id="name" value={localProfile?.name || ''} onChange={(e) => handleFieldChange('name', e.target.value)} />
                         </div>
                          <div className="space-y-2">
                             <Label>Phone Number</Label>
-                            <Input value={profile?.phoneNumber || ''} disabled />
+                            <Input value={localProfile?.phoneNumber || ''} disabled />
                         </div>
                         <div className="space-y-2">
                             <Label>Email Addresses</Label>
-                            {profile?.emails.map((email, index) => (
+                            {localProfile?.emails.map((email, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <Input value={email.address} onChange={(e) => handleEmailChange(index, e.target.value)} />
                                     <Button variant="ghost" size="icon" onClick={() => removeEmail(index)}>
@@ -269,14 +235,14 @@ export function ProfileInformationCard() {
                             <UserIcon className="h-6 w-6 text-muted-foreground" />
                             <div>
                                 <p className="text-sm text-muted-foreground">Full Name</p>
-                                <p className="font-semibold">{profile?.name || 'Not set'}</p>
+                                <p className="font-semibold">{localProfile?.name || 'Not set'}</p>
                             </div>
                         </div>
                          <div className="flex items-center gap-4">
                             <Phone className="h-6 w-6 text-muted-foreground" />
                             <div>
                                 <p className="text-sm text-muted-foreground">Phone Number</p>
-                                <p className="font-semibold">{profile?.phoneNumber}</p>
+                                <p className="font-semibold">{localProfile?.phoneNumber}</p>
                             </div>
                         </div>
                         <div>
@@ -285,8 +251,8 @@ export function ProfileInformationCard() {
                                 <p className="font-semibold text-sm text-muted-foreground">Email Addresses</p>
                             </div>
                             <div className="pl-10">
-                                {profile?.emails && profile.emails.length > 0 ? (
-                                    profile.emails.map((email, index) => (
+                                {localProfile?.emails && localProfile.emails.length > 0 ? (
+                                    localProfile.emails.map((email, index) => (
                                         <p key={index} className="font-semibold">{email.address}</p>
                                     ))
                                 ) : (

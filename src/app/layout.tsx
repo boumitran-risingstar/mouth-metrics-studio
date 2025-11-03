@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/site-header';
 import { Toaster } from '@/components/ui/toaster';
+import { UserProfileProvider } from '@/context/user-profile-context';
 
 export const metadata: Metadata = {
   title: 'Mouth Metrics Studio',
@@ -21,11 +22,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased min-h-screen bg-background">
-        <div className="relative flex min-h-dvh flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-        </div>
-        <Toaster />
+        <UserProfileProvider>
+          <div className="relative flex min-h-dvh flex-col">
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+          </div>
+          <Toaster />
+        </UserProfileProvider>
       </body>
     </html>
   );
