@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, type User, signOut } from 'firebase/auth';
+import { useEffect } from 'react';
+import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -21,25 +21,15 @@ import { useUserProfile } from '@/context/user-profile-context';
 
 
 export function AuthButton() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { userProfile, loading: profileLoading } = useUserProfile();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+  const { user, userProfile, loading } = useUserProfile();
 
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/');
   };
 
-  if (loading || profileLoading) {
+  if (loading) {
     return <Loader2 className="h-6 w-6 animate-spin" />;
   }
 
