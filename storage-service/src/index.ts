@@ -8,7 +8,9 @@ import multer from 'multer';
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
-    admin.initializeApp();
+    admin.initializeApp({
+        projectId: 'studio-3300538966-77056',
+    });
 }
 
 const app = express();
