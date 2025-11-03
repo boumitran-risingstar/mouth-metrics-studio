@@ -95,27 +95,7 @@ export function PhoneLoginForm() {
       if (!window.confirmationResult) {
         throw new Error("No confirmation result found. Please try sending OTP again.");
       }
-      const userCredential = await window.confirmationResult.confirm(otp);
-      const user = userCredential.user;
-      
-      const idToken = await user.getIdToken();
-
-      const response = await fetch(`/api/profile`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({
-              name: user.displayName || '',
-              emails: user.email ? [{ address: user.email, verified: user.emailVerified }] : [],
-          }),
-      });
-
-      if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(errorData || 'Failed to update user profile');
-      }
+      await window.confirmationResult.confirm(otp);
 
       toast({ title: 'Success!', description: 'You have been successfully signed in.' });
       router.push('/dashboard');

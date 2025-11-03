@@ -63,36 +63,44 @@ profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Respon
 
     try {
         const userRef = db.collection('users').doc(uid);
-        const data: any = {
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        };
-
-        // Only add fields if they are provided in the request
-        if (name !== undefined) {
-            data.name = name;
-        }
-        if (emails !== undefined) {
-            // Ensure emails is always an array, even if it's empty
-            data.emails = Array.isArray(emails) ? emails : [];
-        }
-        if (photoURL !== undefined) {
-            data.photoURL = photoURL;
-        }
-
+        
         const userDoc = await userRef.get();
 
         if (!userDoc.exists) {
-            data.createdAt = admin.firestore.FieldValue.serverTimestamp();
-            // Set defaults for new users if not provided
-            if (name === undefined) data.name = '';
-            if (emails === undefined) data.emails = [];
-            if (photoURL === undefined) data.photoURL = null;
-        }
-        
-        await userRef.set(data, { merge: true });
+            // User does not exist, create a new profile.
+            const authUser = await admin.auth().getUser(uid);
+            const newUser = {
+                name: name !== undefined ? name : authUser.displayName || '',
+                emails: emails !== undefined ? emails : (authUser.email ? [{ address: authUser.email, verified: authUser.emailVerified }] : []),
+                photoURL: photoURL !== undefined ? photoURL : authUser.photoURL || null,
+                phoneNumber: authUser.phoneNumber,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            };
+            await userRef.set(newUser);
+            return res.status(201).json({ id: userRef.id, ...newUser });
+        } else {
+             // User exists, update the profile.
+            const data: any = {
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            };
 
-        const updatedUserDoc = await userRef.get();
-        res.status(200).json({ id: updatedUserDoc.id, ...updatedUserDoc.data() });
+            // Only add fields if they are provided in the request
+            if (name !== undefined) {
+                data.name = name;
+            }
+            if (emails !== undefined) {
+                data.emails = Array.isArray(emails) ? emails : [];
+            }
+            if (photoURL !== undefined) {
+                data.photoURL = photoURL;
+            }
+
+            await userRef.set(data, { merge: true });
+            const updatedUserDoc = await userRef.get();
+            return res.status(200).json({ id: updatedUserDoc.id, ...updatedUserDoc.data() });
+        }
+
     } catch (error) {
         console.error(`Error creating/updating user profile for ${uid}:`, error);
         res.status(500).send('Internal Server Error');
