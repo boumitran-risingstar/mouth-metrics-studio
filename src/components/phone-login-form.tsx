@@ -100,14 +100,15 @@ export function PhoneLoginForm() {
       
       const idToken = await user.getIdToken();
 
-      const response = await fetch(`/api/users`, {
+      const response = await fetch(`/api/profile`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${idToken}`,
           },
           body: JSON.stringify({
-              phoneNumber: user.phoneNumber,
+              name: user.displayName || '',
+              emails: user.email ? [{ address: user.email, verified: user.emailVerified }] : [],
           }),
       });
 
