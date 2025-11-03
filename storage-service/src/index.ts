@@ -5,11 +5,14 @@ import cors from 'cors';
 import 'dotenv/config';
 import multer from 'multer';
 
+// The correct bucket name provided by the user.
+const BUCKET_NAME = 'studio-3300538966-77056.firebasestorage.app';
+
 // Initialize Firebase Admin SDK with explicit project ID and bucket
 if (!admin.apps.length) {
     admin.initializeApp({
         projectId: 'studio-3300538966-77056',
-        storageBucket: 'studio-3300538966-77056.appspot.com',
+        storageBucket: BUCKET_NAME,
     });
 }
 
@@ -26,8 +29,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// Get storage bucket explicitly by name
-const bucket = admin.storage().bucket('studio-3300538966-77056.appspot.com');
+// Get storage bucket explicitly by name to ensure correctness.
+const bucket = admin.storage().bucket(BUCKET_NAME);
 
 // Multer configuration for memory storage
 const multerMemory = multer({
