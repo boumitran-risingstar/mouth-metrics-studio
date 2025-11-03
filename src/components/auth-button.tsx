@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -14,17 +15,40 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User as UserIcon, LogOut, LayoutDashboard, Loader2 } from 'lucide-react';
+
+type UserProfile = {
+  name: string;
+  photoURL?: string;
+};
 
 export function AuthButton() {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        try {
+          const idToken = await currentUser.getIdToken();
+          const response = await fetch(`/api/profile/${currentUser.uid}`, {
+            headers: { Authorization: `Bearer ${idToken}` }
+          });
+          if (response.ok) {
+            const profileData = await response.json();
+            setUserProfile(profileData);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile for avatar:", error);
+        }
+      } else {
+        setUser(null);
+        setUserProfile(null);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -45,6 +69,7 @@ export function AuthButton() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8 border">
+              <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name} />
               <AvatarFallback><UserIcon className="h-4 w-4" /></AvatarFallback>
             </Avatar>
           </Button>
@@ -52,7 +77,7 @@ export function AuthButton() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">My Account</p>
+              <p className="text-sm font-medium leading-none">{userProfile?.name || "My Account"}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.phoneNumber}
               </p>
