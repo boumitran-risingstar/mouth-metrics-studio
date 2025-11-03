@@ -52,7 +52,7 @@ app.get('/', (req: Request, res: Response) => {
 
 const profileRouter = express.Router();
 
-// Create or update user profile
+// Update user profile
 profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
     const { name, emails, photoURL } = req.body;
     const uid = req.user?.uid;
@@ -64,75 +64,57 @@ profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Respon
     try {
         const userRef = db.collection('users').doc(uid);
         
-        const userDoc = await userRef.get();
+        const data: any = {
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
 
-        if (!userDoc.exists) {
-            // User does not exist, create a new profile.
-            const authUser = await admin.auth().getUser(uid);
-            const newUser = {
-                name: name !== undefined ? name : authUser.displayName || '',
-                emails: emails !== undefined ? emails : (authUser.email ? [{ address: authUser.email, verified: authUser.emailVerified }] : []),
-                photoURL: photoURL !== undefined ? photoURL : authUser.photoURL || null,
-                phoneNumber: authUser.phoneNumber,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            };
-            await userRef.set(newUser);
-            return res.status(201).json({ id: userRef.id, ...newUser });
-        } else {
-             // User exists, update the profile.
-            const data: any = {
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-            };
+        // Only add fields to the update object if they are provided in the request
+        if (name !== undefined) data.name = name;
+        if (emails !== undefined) data.emails = Array.isArray(emails) ? emails : [];
+        if (photoURL !== undefined) data.photoURL = photoURL;
 
-            // Only add fields if they are provided in the request
-            if (name !== undefined) {
-                data.name = name;
-            }
-            if (emails !== undefined) {
-                data.emails = Array.isArray(emails) ? emails : [];
-            }
-            if (photoURL !== undefined) {
-                data.photoURL = photoURL;
-            }
+        // Use set with merge to update existing doc or create if it doesn't exist (though GET should create it first)
+        await userRef.set(data, { merge: true });
 
-            await userRef.set(data, { merge: true });
-            const updatedUserDoc = await userRef.get();
-            return res.status(200).json({ id: updatedUserDoc.id, ...updatedUserDoc.data() });
-        }
+        const updatedUserDoc = await userRef.get();
+        return res.status(200).json({ id: updatedUserDoc.id, ...updatedUserDoc.data() });
 
     } catch (error) {
-        console.error(`Error creating/updating user profile for ${uid}:`, error);
+        console.error(`Error updating user profile for ${uid}:`, error);
         res.status(500).send('Internal Server Error');
     }
 });
 
 
-// Example user route
+// Get user profile
 profileRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     const requestingUid = req.user?.uid;
 
+    // A user can only access their own profile
     if (id !== requestingUid) {
         return res.status(403).json({ error: 'Forbidden: You can only access your own profile.' });
     }
 
     try {
-        const userDoc = await db.collection('users').doc(id).get();
+        const userRef = db.collection('users').doc(id);
+        const userDoc = await userRef.get();
+        
         if (!userDoc.exists) {
             // If user doc doesn't exist, create a shell profile from Auth data
             const authUser = await admin.auth().getUser(id);
             const newUser = {
-                phoneNumber: authUser.phoneNumber,
                 name: authUser.displayName || '',
                 emails: authUser.email ? [{ address: authUser.email, verified: authUser.emailVerified }] : [],
                 photoURL: authUser.photoURL || null,
+                phoneNumber: authUser.phoneNumber,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             };
-            await db.collection('users').doc(id).set(newUser);
+            await userRef.set(newUser);
             return res.json({ id, ...newUser });
         }
+
         res.json({ id: userDoc.id, ...userDoc.data() });
     } catch (error) {
         console.error(`Error fetching user ${id}:`, error);
