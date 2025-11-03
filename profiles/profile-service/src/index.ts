@@ -54,7 +54,7 @@ const profileRouter = express.Router();
 
 // Create or update user profile
 profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Response) => {
-    const { name, emails } = req.body;
+    const { name, emails, photoURL } = req.body;
     const uid = req.user?.uid;
 
     if (!uid) {
@@ -75,6 +75,9 @@ profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Respon
             // Ensure emails is always an array, even if it's empty
             data.emails = Array.isArray(emails) ? emails : [];
         }
+        if (photoURL !== undefined) {
+            data.photoURL = photoURL;
+        }
 
         const userDoc = await userRef.get();
 
@@ -83,6 +86,7 @@ profileRouter.post('/', checkAuth, async (req: AuthenticatedRequest, res: Respon
             // Set defaults for new users if not provided
             if (name === undefined) data.name = '';
             if (emails === undefined) data.emails = [];
+            if (photoURL === undefined) data.photoURL = null;
         }
         
         await userRef.set(data, { merge: true });
@@ -114,6 +118,7 @@ profileRouter.get('/:id', checkAuth, async (req: AuthenticatedRequest, res: Resp
                 phoneNumber: authUser.phoneNumber,
                 name: authUser.displayName || '',
                 emails: authUser.email ? [{ address: authUser.email, verified: authUser.emailVerified }] : [],
+                photoURL: authUser.photoURL || null,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             };
