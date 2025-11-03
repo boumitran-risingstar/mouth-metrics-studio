@@ -26,8 +26,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// Get storage bucket from initialized admin app
-const bucket = admin.storage().bucket();
+// Get storage bucket explicitly by name
+const bucket = admin.storage().bucket('studio-3300538966-77056.appspot.com');
 
 // Multer configuration for memory storage
 const multerMemory = multer({
