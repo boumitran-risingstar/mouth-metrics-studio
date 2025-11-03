@@ -26,9 +26,9 @@ app.use(express.json());
 
 // Initialize Google Cloud Storage
 const storage = new Storage();
-const bucketName = process.env.GCS_BUCKET_NAME;
+const bucketName = 'studio-3300538966-77056.appspot.com'; // Use the correct, hardcoded bucket name
 if (!bucketName) {
-    throw new Error('GCS_BUCKET_NAME environment variable not set.');
+    throw new Error('GCS_BUCKET_NAME is not set.');
 }
 const bucket = storage.bucket(bucketName);
 
