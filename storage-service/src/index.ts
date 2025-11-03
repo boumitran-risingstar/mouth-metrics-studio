@@ -3,13 +3,13 @@ import express, { Request, Response, NextFunction } from 'express';
 import admin from 'firebase-admin';
 import cors from 'cors';
 import 'dotenv/config';
-import { Storage } from '@google-cloud/storage';
 import multer from 'multer';
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK with explicit project ID and bucket
 if (!admin.apps.length) {
     admin.initializeApp({
         projectId: 'studio-3300538966-77056',
+        storageBucket: 'studio-3300538966-77056.appspot.com',
     });
 }
 
@@ -26,13 +26,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// Initialize Google Cloud Storage
-const storage = new Storage();
-const bucketName = 'studio-3300538966-77056.appspot.com'; // Use the correct, hardcoded bucket name
-if (!bucketName) {
-    throw new Error('GCS_BUCKET_NAME is not set.');
-}
-const bucket = storage.bucket(bucketName);
+// Get storage bucket from initialized admin app
+const bucket = admin.storage().bucket();
 
 // Multer configuration for memory storage
 const multerMemory = multer({
@@ -84,6 +79,7 @@ storageRouter.post('/upload', multerMemory.single('file'), (req: AuthenticatedRe
     
     const blobStream = blob.createWriteStream({
         resumable: false,
+        contentType: req.file.mimetype,
     });
 
     blobStream.on('error', (err) => {
